@@ -1,4 +1,4 @@
-#!/usr/bin/env bash -eu
+#!/usr/bin/env bash
 
 # ENVIRONMENT VARIABLES
 CONTRACTS_DIR="${CONTRACTS_DIR:=./src}" # Base contract directory 
