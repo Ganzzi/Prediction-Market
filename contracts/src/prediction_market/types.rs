@@ -1,5 +1,4 @@
 use ink::prelude::string::String;
-use ink::prelude::vec::Vec;
 use ink::primitives::AccountId;
 
 pub type OutComeId = u64;
@@ -27,12 +26,19 @@ pub struct MyEnvironment;
 pub struct Event {
     pub event_id: EventId,
     pub owner: AccountId,
-    pub name: String,
-    pub creation_deposit: Balance,
-    pub total_supply: Supply,
-    pub bets: Vec<OutComeId>,
-    pub resolve_date: Timestamp,
-    pub winning_outcome: Option<OutComeId>,
+    pub question: String,
+    pub metadata: EventMetadata,
+}
+
+#[derive(scale::Decode, scale::Encode)]
+#[cfg_attr(
+    feature = "std",
+    derive(scale_info::TypeInfo, ink::storage::traits::StorageLayout)
+)]
+pub struct EventMetadata {
+    pub name: Option<String>,
+    pub image_url: Option<String>,
+    pub description: Option<String>,
 }
 
 #[derive(scale::Decode, scale::Encode)]
@@ -68,7 +74,9 @@ pub struct EventMarket {
     pub event_id: EventId,
     pub pool: Balance,
     pub is_resolved: bool,
-    pub outcomes: Vec<OutComeId>,
+    pub total_supply: Supply,
+    pub resolve_date: Timestamp,
+    pub winning_outcome: Option<OutComeId>,
 }
 
 #[derive(scale::Decode, scale::Encode)]
