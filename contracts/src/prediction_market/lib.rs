@@ -17,8 +17,12 @@ pub enum Error {
     NotDivisibleBy100,
     NotEnoughShare,
     OutOfSupply,
-    TooMuchOutcomeSupply,
+    AtLeastTwoOutcome,
     FundNotFound,
+    AtLeast100Share,
+    TimeExpired,
+    TradeNotAvailable,
+    TradeNotFound,
 }
 
 pub type Result<T> = core::result::Result<T, Error>;
@@ -30,25 +34,26 @@ pub trait EventCore {
         &mut self,
         question: String,
         resolve_date: Timestamp,
-        total_supply: Supply,
-        bets: Option<Vec<OutComePayload>>,
+        bets: Vec<OutComePayload>,
         metadata: EventMetadata,
     ) -> Result<EventId>;
-
-    #[ink(message)]
-    fn create_outcome(&mut self, event_id: EventId, payload: OutComePayload) -> Result<OutComeId>;
 
     #[ink(message)]
     fn resolve_event(&mut self, event_id: EventId, winner: OutComeId) -> Result<()>;
 
     #[ink(message)]
-    fn get_events(&self) -> Result<Vec<(Event, EventMarket)>>;
+    fn get_events(&self) -> Result<Vec<(Event, EventMarket, Supply)>>;
 
     #[ink(message)]
-    fn get_outcomes(
+    fn get_event_detail(
         &self,
         event_id: EventId,
-    ) -> Result<Vec<(OutCome, MarketOutCome, Vec<InvestmentFund>)>>;
+    ) -> Result<(
+        Event,
+        EventMarket,
+        Supply,
+        Vec<(OutCome, MarketOutCome, Vec<InvestmentFund>)>,
+    )>;
 }
 
 #[ink::trait_definition]
@@ -77,16 +82,38 @@ pub trait FundCore {
     ) -> Result<()>;
 
     #[ink(message)]
-    fn create_proposal(&mut self) -> Result<TradeId>;
+    fn create_proposal(
+        &mut self,
+        fund_id: InvestmentFundId,
+        amount: Share,
+        price: Balance,
+        duration: Option<Timestamp>,
+        proposed_person: Option<AccountId>,
+    ) -> Result<TradeId>;
 
     #[ink(message, payable)]
-    fn accept_proposal(&mut self) -> Result<()>;
+    fn accept_proposal(&mut self, trade_id: TradeId) -> Result<()>;
 
     #[ink(message)]
     fn get_funds(
         &self,
         owner: Option<AccountId>,
     ) -> Result<Vec<(InvestmentFund, Vec<OutCome>, Option<Share>)>>;
+
+    #[ink(message)]
+    fn get_owner_share(&self, fund_id: InvestmentFundId, owner: AccountId) -> Result<Share>;
+
+    #[ink(message)]
+    fn get_proposals(
+        &self,
+        proponent: Option<AccountId>,
+    ) -> Result<Vec<(InvestmentFund, FundTrade)>>;
+
+    #[ink(message)]
+    fn get_fund_proposals(
+        &self,
+        fund_id: InvestmentFundId,
+    ) -> Result<(InvestmentFund, Vec<FundTrade>)>;
 }
 
 impl ink::env::Environment for MyEnvironment {
@@ -119,7 +146,7 @@ mod prediction_market {
         pub fund_to_outcomes: Mapping<InvestmentFundId, Vec<OutComeId>>,
         pub fund_owner_to_shares: Mapping<(InvestmentFundId, AccountId), Share>,
         pub fund_to_trades: Mapping<InvestmentFundId, Vec<TradeId>>,
-        pub trader_to_trade: Mapping<AccountId, TradeId>,
+        pub proponent_to_trades: Mapping<AccountId, Vec<TradeId>>,
 
         pub next_fund_id: InvestmentFundId,
         pub next_event_id: EventId,
@@ -140,8 +167,7 @@ mod prediction_market {
             &mut self,
             question: String,
             resolve_date: Timestamp,
-            total_supply: Supply,
-            bets: Option<Vec<OutComePayload>>,
+            bets: Vec<OutComePayload>,
             metadata: EventMetadata,
         ) -> Result<EventId> {
             let creation_deposit = self.env().transferred_value();
@@ -149,15 +175,10 @@ mod prediction_market {
                 return Err(Error::DepositTooLow);
             }
 
-            let new_event =
-                self.new_event(self.env().caller(), question, bets, total_supply, metadata)?;
+            let new_event = self.new_event(self.env().caller(), question, bets, metadata)?;
 
-            let new_market = self.new_market(
-                new_event.0.event_id,
-                creation_deposit,
-                resolve_date,
-                total_supply,
-            )?;
+            let new_market =
+                self.new_market(new_event.0.event_id, creation_deposit, resolve_date)?;
 
             self.event_to_outcomes
                 .insert(new_event.0.event_id, &new_event.1);
@@ -165,43 +186,6 @@ mod prediction_market {
             self.event_markets.insert(new_event.0.event_id, &new_market);
 
             Ok(new_event.0.event_id)
-        }
-
-        #[ink(message)]
-        fn create_outcome(
-            &mut self,
-            event_id: EventId,
-            payload: OutComePayload,
-        ) -> Result<OutComeId> {
-            let market = self.event_markets.get(event_id).unwrap();
-            let event = self.events.get(event_id).unwrap();
-            let mut event_outcomes = self.event_to_outcomes.get(event_id).unwrap_or_default();
-
-            if self.env().caller() != event.owner {
-                return Err(Error::NotOwner);
-            }
-
-            let mut event_supplies = market.total_supply as i64;
-            for oid in &event_outcomes {
-                let supply_each_existing_outcome =
-                    self.outcomes.get(!oid).unwrap().total_supply as i64;
-                event_supplies -= supply_each_existing_outcome;
-            }
-
-            if event_supplies < 0 {
-                return Err(Error::TooMuchOutcomeSupply);
-            }
-
-            let outcome = self.new_outcome(event_id, payload);
-            let m_outcome =
-                self.new_market_outcome(event_id, outcome.outcome_id, outcome.total_supply);
-            event_outcomes.push(outcome.outcome_id);
-
-            self.outcomes.insert(outcome.outcome_id, &outcome);
-            self.market_outcomes.insert(outcome.outcome_id, &m_outcome);
-            self.event_to_outcomes.insert(event_id, &event_outcomes);
-
-            return Ok(outcome.outcome_id);
         }
 
         #[ink(message)]
@@ -230,7 +214,7 @@ mod prediction_market {
         }
 
         #[ink(message)]
-        fn get_events(&self) -> Result<Vec<(Event, EventMarket)>> {
+        fn get_events(&self) -> Result<Vec<(Event, EventMarket, Supply)>> {
             let mut events = Vec::new();
             for i in 0..self.next_event_id {
                 events.push(self.get_event_by_id(i)?)
@@ -239,10 +223,16 @@ mod prediction_market {
         }
 
         #[ink(message)]
-        fn get_outcomes(
+        fn get_event_detail(
             &self,
             event_id: EventId,
-        ) -> Result<Vec<(OutCome, MarketOutCome, Vec<InvestmentFund>)>> {
+        ) -> Result<(
+            Event,
+            EventMarket,
+            Supply,
+            Vec<(OutCome, MarketOutCome, Vec<InvestmentFund>)>,
+        )> {
+            let event = self.get_event_by_id(event_id)?;
             let event_outcome_ids = self.event_to_outcomes.get(event_id).unwrap_or_default();
             let mut rs = Vec::new();
 
@@ -253,7 +243,7 @@ mod prediction_market {
                 rs.push((outcome.0, outcome.1, outcome_funds));
             }
 
-            Ok(rs)
+            Ok((event.0, event.1, event.2, rs))
         }
     }
 
@@ -267,9 +257,14 @@ mod prediction_market {
             let trader = self.env().caller();
             let total_fund = self.env().transferred_value();
 
+            if total_share < 100 {
+                return Err(Error::AtLeast100Share);
+            }
+
             if total_share < MIN_FUND_SHARE {
                 return Err(Error::NotDivisibleBy100);
             }
+
             if total_fund < MIN_FUND_DEPOSIT {
                 return Err(Error::DepositTooLow);
             }
@@ -300,14 +295,14 @@ mod prediction_market {
                 .get((fund_id, recipient))
                 .unwrap_or(0);
 
-            if amount < share_of_sender {
+            if amount > share_of_sender {
                 return Err(Error::NotEnoughShare);
             }
 
             self.fund_owner_to_shares
                 .insert((fund_id, sender), &(share_of_sender - amount));
             self.fund_owner_to_shares
-                .insert((fund_id, sender), &(share_of_recipient + amount));
+                .insert((fund_id, recipient), &(share_of_recipient + amount));
 
             Ok((recipient, share_of_recipient + amount))
         }
@@ -319,7 +314,7 @@ mod prediction_market {
             fund_id: InvestmentFundId,
             supplies: Supply,
         ) -> Result<()> {
-            if self.investment_funds.get(fund_id).unwrap().trader != self.env().caller() {
+            if self.get_fund_by_id(fund_id)?.trader != self.env().caller() {
                 return Err(Error::NotOwner);
             }
 
@@ -349,12 +344,90 @@ mod prediction_market {
         }
 
         #[ink(message)]
-        fn create_proposal(&mut self) -> Result<TradeId> {
-            Ok(0)
+        fn create_proposal(
+            &mut self,
+            fund_id: InvestmentFundId,
+            amount: Share,
+            price: Balance,
+            duration: Option<Timestamp>,
+            proposed_person: Option<AccountId>,
+        ) -> Result<TradeId> {
+            let caller = self.env().caller();
+            let _ = self.get_fund_by_id(fund_id)?;
+
+            let caller_share = self
+                .fund_owner_to_shares
+                .get((fund_id, caller))
+                .unwrap_or_default();
+
+            if caller_share < amount {
+                return Err(Error::NotEnoughShare);
+            }
+
+            let close_time = self.env().block_timestamp() + duration.unwrap_or(DEFAULT_DURATION);
+
+            let new_trade =
+                self.new_trade(fund_id, caller, proposed_person, amount, price, close_time);
+
+            let mut fund_trades = self.fund_to_trades.get(fund_id).unwrap_or(Vec::new());
+            let mut proponent_trades = self.proponent_to_trades.get(caller).unwrap_or(Vec::new());
+
+            fund_trades.push(new_trade.trade_id);
+            proponent_trades.push(new_trade.trade_id);
+
+            self.fund_trades.insert(new_trade.trade_id, &new_trade);
+            self.fund_to_trades.insert(fund_id, &fund_trades);
+            self.proponent_to_trades.insert(caller, &proponent_trades);
+
+            Ok(new_trade.trade_id)
         }
 
         #[ink(message, payable)]
-        fn accept_proposal(&mut self) -> Result<()> {
+        fn accept_proposal(&mut self, trade_id: TradeId) -> Result<()> {
+            let caller = self.env().caller();
+            let transferred_value = self.env().transferred_value();
+
+            let mut trade = self.get_trade_by_id(trade_id)?;
+
+            if trade.is_completed {
+                return Err(Error::TradeNotAvailable);
+            }
+            if self.env().block_timestamp() > trade.close_time {
+                return Err(Error::TimeExpired);
+            }
+            if trade.proposed_person.is_some() && caller != trade.proposed_person.unwrap() {
+                return Err(Error::NotOwner);
+            }
+            if transferred_value < trade.price {
+                return Err(Error::DepositTooLow);
+            }
+
+            let proponent_share = self
+                .fund_owner_to_shares
+                .get((trade.investment_fund_id, trade.proponent))
+                .unwrap_or_default();
+
+            if proponent_share < trade.share {
+                return Err(Error::NotEnoughShare);
+            }
+
+            let caller_share = self
+                .fund_owner_to_shares
+                .get((trade.investment_fund_id, caller))
+                .unwrap_or_default();
+
+            trade.is_completed = true;
+
+            self.fund_trades.insert(trade_id, &trade);
+            self.fund_owner_to_shares.insert(
+                (trade.investment_fund_id, trade.proponent),
+                &(proponent_share - trade.share),
+            );
+            self.fund_owner_to_shares.insert(
+                (trade.investment_fund_id, caller),
+                &(caller_share + trade.share),
+            );
+
             Ok(())
         }
 
@@ -370,22 +443,13 @@ mod prediction_market {
                 let fund_outcomes = self.get_fund_outcomes(i)?;
                 match owner {
                     Some(owner) => {
-                        if owner == fund.trader {
-                            let trader_share = self
-                                .fund_owner_to_shares
-                                .get((fund.investment_fund_id, owner))
-                                .unwrap_or_default();
+                        let owner_share = self
+                            .fund_owner_to_shares
+                            .get((fund.investment_fund_id, owner))
+                            .unwrap_or_default();
 
-                            rs.push((fund, fund_outcomes, Some(trader_share)));
-                        } else {
-                            let owner_share = self
-                                .fund_owner_to_shares
-                                .get((fund.investment_fund_id, owner))
-                                .unwrap_or_default();
-
-                            if owner_share != 0 {
-                                rs.push((fund, fund_outcomes, Some(owner_share)));
-                            }
+                        if owner_share != 0 {
+                            rs.push((fund, fund_outcomes, Some(owner_share)));
                         }
                     }
                     None => rs.push((fund, fund_outcomes, None)),
@@ -394,17 +458,82 @@ mod prediction_market {
 
             Ok(rs)
         }
+
+        #[ink(message)]
+        fn get_owner_share(&self, fund_id: InvestmentFundId, owner: AccountId) -> Result<Share> {
+            let owner_share = self
+                .fund_owner_to_shares
+                .get((fund_id, owner))
+                .unwrap_or_default();
+
+            Ok(owner_share)
+        }
+
+        #[ink(message)]
+        fn get_proposals(
+            &self,
+            proponent: Option<AccountId>,
+        ) -> Result<Vec<(InvestmentFund, FundTrade)>> {
+            let mut rs = Vec::new();
+            match proponent {
+                Some(id) => {
+                    let trade_ids = self.proponent_to_trades.get(id).unwrap_or(Vec::new());
+
+                    for trade_id in trade_ids.into_iter() {
+                        let fund = self.investment_funds.get(trade_id).unwrap();
+                        let trade = self.get_trade_by_id(trade_id)?;
+
+                        rs.push((fund, trade));
+                    }
+                }
+                None => {
+                    for trade_id in 0..self.next_trade_id {
+                        let fund = self.investment_funds.get(trade_id).unwrap();
+                        let trade = self.get_trade_by_id(trade_id)?;
+
+                        rs.push((fund, trade));
+                    }
+                }
+            }
+
+            Ok(rs)
+        }
+
+        #[ink(message)]
+        fn get_fund_proposals(
+            &self,
+            fund_id: InvestmentFundId,
+        ) -> Result<(InvestmentFund, Vec<FundTrade>)> {
+            let fund = self.get_fund_by_id(fund_id)?;
+            let trade_ids = self.fund_to_trades.get(fund_id).unwrap_or(Vec::new());
+            let mut trades = Vec::new();
+
+            for trade_id in trade_ids.into_iter() {
+                trades.push(self.get_trade_by_id(trade_id)?);
+            }
+
+            Ok((fund, trades))
+        }
     }
 
     #[ink(impl)]
     impl PredictionMarket {
-        fn get_event_by_id(&self, event_id: EventId) -> Result<(Event, EventMarket)> {
+        fn get_event_by_id(&self, event_id: EventId) -> Result<(Event, EventMarket, Supply)> {
             let event = self.events.get(event_id);
             let event_markets = self.event_markets.get(event_id);
             if event.is_none() || event_markets.is_none() {
                 return Err(Error::EventNotFound);
             }
-            Ok((event.unwrap(), event_markets.unwrap()))
+            let mut total_supply = 0;
+            for oid in self
+                .event_to_outcomes
+                .get(event_id)
+                .unwrap_or(Vec::new())
+                .into_iter()
+            {
+                total_supply += self.get_outcome_by_id(oid)?.0.total_supply;
+            }
+            Ok((event.unwrap(), event_markets.unwrap(), total_supply))
         }
 
         fn get_outcome_by_id(&self, outcome_id: OutComeId) -> Result<(OutCome, MarketOutCome)> {
@@ -422,6 +551,14 @@ mod prediction_market {
                 return Err(Error::FundNotFound);
             }
             Ok(fund.unwrap())
+        }
+
+        fn get_trade_by_id(&self, trade_id: TradeId) -> Result<FundTrade> {
+            let trade = self.fund_trades.get(trade_id);
+            if trade.is_none() {
+                return Err(Error::TradeNotFound);
+            }
+            Ok(trade.unwrap())
         }
 
         fn get_outcome_funds(&self, outcome_id: OutComeId) -> Result<Vec<InvestmentFund>> {
@@ -474,8 +611,7 @@ mod prediction_market {
             &mut self,
             owner: AccountId,
             question: String,
-            bets: Option<Vec<OutComePayload>>,
-            total_supply: Supply,
+            bets: Vec<OutComePayload>,
             metadata: EventMetadata,
         ) -> Result<(Event, Vec<OutComeId>)> {
             let mut event_bets: Vec<OutComeId> = Vec::new();
@@ -483,29 +619,21 @@ mod prediction_market {
             let event_id = self.next_event_id;
             self.next_event_id += 1;
 
-            match bets {
-                Some(outcome) => {
-                    let mut available_event_supply = total_supply as i64;
-                    for payload in outcome.into_iter() {
-                        available_event_supply -= payload.total_supply as i64;
+            if bets.len() < 2 {
+                return Err(Error::AtLeastTwoOutcome);
+            }
 
-                        if available_event_supply < 0 {
-                            return Err(Error::TooMuchOutcomeSupply);
-                        }
-                        let new_outcome = self.new_outcome(event_id, payload);
-                        event_bets.push(new_outcome.outcome_id);
-                        self.outcomes.insert(new_outcome.outcome_id, &new_outcome);
-                    }
-                    for outcome_id in event_bets.clone().into_iter() {
-                        let market_outcome = self.new_market_outcome(
-                            event_id,
-                            outcome_id,
-                            self.outcomes.get(outcome_id).unwrap().total_supply,
-                        );
-                        self.market_outcomes.insert(outcome_id, &market_outcome);
-                    }
-                }
-                None => (),
+            for payload in bets.into_iter() {
+                let outcome_total_supply = payload.total_supply;
+
+                let new_outcome = self.new_outcome(event_id, payload);
+                let market_outcome =
+                    self.new_market_outcome(event_id, new_outcome.outcome_id, outcome_total_supply);
+
+                event_bets.push(new_outcome.outcome_id);
+                self.outcomes.insert(new_outcome.outcome_id, &new_outcome);
+                self.market_outcomes
+                    .insert(new_outcome.outcome_id, &market_outcome);
             }
 
             Ok((
@@ -524,14 +652,12 @@ mod prediction_market {
             event_id: EventId,
             deposit: Balance,
             resolve_date: Timestamp,
-            total_supply: Supply,
         ) -> Result<EventMarket> {
             let new_market = EventMarket {
                 event_id,
                 pool: deposit,
                 is_resolved: false,
                 resolve_date,
-                total_supply,
                 winning_outcome: None,
             };
 
@@ -557,6 +683,30 @@ mod prediction_market {
             };
 
             new_fund
+        }
+
+        fn new_trade(
+            &mut self,
+            fund_id: InvestmentFundId,
+            proponent: AccountId,
+            proposed_person: Option<AccountId>,
+            share: Share,
+            price: Balance,
+            close_time: Timestamp,
+        ) -> FundTrade {
+            let trade_id = self.next_trade_id;
+            self.next_trade_id += 1;
+
+            FundTrade {
+                investment_fund_id: fund_id,
+                trade_id,
+                proponent,
+                proposed_person,
+                share,
+                price,
+                close_time,
+                is_completed: false,
+            }
         }
     }
 }

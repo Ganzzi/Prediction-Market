@@ -14,5 +14,6 @@ declare module 'react' {
   interface DOMAttributes<T> {
     tw?: string
     css?: CSSInterpolation
+    className?: string
   }
 }

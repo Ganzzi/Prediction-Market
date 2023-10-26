@@ -31,7 +31,8 @@
     "**/*.ts",
     "**/*.tsx",
     "**/*.json",
-    ".next/types/**/*.ts"
+    ".next/types/**/*.ts",
+    "src/pages/market"
   ],
   "exclude": ["node_modules"],
   "types": ["src/types"]

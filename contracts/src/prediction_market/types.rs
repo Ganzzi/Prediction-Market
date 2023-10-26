@@ -15,6 +15,7 @@ pub type BlockNumber = u32;
 pub const MIN_EVENT_DEPOSIT: Balance = 1_000_000_000_000;
 pub const MIN_FUND_DEPOSIT: Balance = 1_000_000_000_000;
 pub const MIN_FUND_SHARE: Share = 100;
+pub const DEFAULT_DURATION: Timestamp = 2592000000; // 30days
 
 pub struct MyEnvironment;
 
@@ -74,7 +75,6 @@ pub struct EventMarket {
     pub event_id: EventId,
     pub pool: Balance,
     pub is_resolved: bool,
-    pub total_supply: Supply,
     pub resolve_date: Timestamp,
     pub winning_outcome: Option<OutComeId>,
 }
@@ -124,6 +124,7 @@ pub struct FundTrade {
     pub proponent: AccountId,
     pub proposed_person: Option<AccountId>,
     pub share: Share,
-    pub fund: Balance,
+    pub price: Balance,
     pub close_time: Timestamp,
+    pub is_completed: bool,
 }
