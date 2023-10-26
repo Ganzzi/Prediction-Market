@@ -12,7 +12,7 @@ type Timestamp = number
 type OutComeId = string
 
 type EventData = [Event, EventMarket]
-type OutComeData = Array<[OutCome, MarketOutcome, Array<InvestmentFund>]>
+type OutComeData = Array<[OutCome, MarketOutcome, Array<[InvestmentFund, Supply]>]>
 type EventDetailData = [Event, EventMarket, Supply, OutComeData]
 type FundData = [InvestmentFund, Array<OutCome>, Share | null]
 

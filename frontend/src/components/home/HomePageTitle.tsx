@@ -1,4 +1,3 @@
-import Image from 'next/image'
 import Link from 'next/link'
 import { FC, useState } from 'react'
 import 'twin.macro'
@@ -15,7 +14,7 @@ export const HomePageTitle: FC = () => {
     <>
       <div tw="flex w-full flex-col items-center text-center font-mono">
         <div tw="relative w-full">
-          <Image
+          <img
             src="https://media.licdn.com/dms/image/C5612AQG9TC3l74k-Nw/article-cover_image-shrink_720_1280/0/1549922697604?e=2147483647&v=beta&t=upbKWCdnlnFUUTD6IjzMOqQejHzKUhRS90zynTcloPo"
             alt=""
             tw="w-full"

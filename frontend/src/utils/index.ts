@@ -12,14 +12,18 @@ function stringToNumber(price: string | number): number | null {
   if (typeof price == 'number') {
     return price
   }
-  const priceWithoutCommas = price.replace(/,/g, '') // Remove commas if present
-  const priceNumber = parseFloat(priceWithoutCommas)
 
-  if (isNaN(priceNumber)) {
-    return null // Return null for invalid inputs
+  if (typeof price == 'string') {
+    const priceWithoutCommas = price.replace(/,/g, '') // Remove commas if present
+    const priceNumber = parseFloat(priceWithoutCommas)
+
+    if (isNaN(priceNumber)) {
+      return null // Return null for invalid inputs
+    }
+
+    return priceNumber
   }
-
-  return priceNumber
+  return null
 }
 
 function dateToMilliseconds(dateString: string): number {
@@ -38,7 +42,7 @@ function fromDecimal(price: number, decimals: number): number {
 }
 
 const shorttenAddress = (input: string, prefixLength: number, suffixLength: number): string => {
-  if (input.length <= prefixLength + suffixLength) {
+  if (input?.length <= prefixLength + suffixLength) {
     return input
   }
 

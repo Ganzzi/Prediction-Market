@@ -13,7 +13,7 @@ function Guideline({ onClose }: Props) {
         <div tw="flex flex-col items-center justify-start">
           <p>Step to participate in prediction market </p>
           <div tw="my-10 flex flex-row items-start justify-between">
-            <div tw="flex w-96 flex-col items-center justify-start">
+            <div tw="mx-7 flex flex-col items-center justify-start">
               <p>Step 1</p>
               <div tw="flex flex-col">
                 <p>create a polkadot wallet & connect to the site</p>
@@ -25,7 +25,7 @@ function Guideline({ onClose }: Props) {
                 </Link>
               </div>
             </div>
-            <div tw="flex w-96 flex-col items-center justify-start">
+            <div tw="mx-7 flex flex-col items-center justify-start">
               <p>Step 2</p>
               <div tw="flex flex-col">
                 <p>create or buy share from a fund</p>
@@ -43,7 +43,7 @@ function Guideline({ onClose }: Props) {
                 </Link>
               </div>
             </div>
-            <div tw="flex w-96 flex-col items-center justify-start">
+            <div tw="mx-7 flex flex-col items-center justify-start">
               <p>Step 3</p>
               <div tw="flex flex-col">
                 <p>create or bet from a market</p>

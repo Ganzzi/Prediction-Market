@@ -24,18 +24,18 @@ const Attendence = ({ data }: Props) => {
                   Router.push({
                     pathname: `/fund`,
                     query: {
-                      fundId: fund.investmentFundId,
+                      fundId: fund[0].investmentFundId,
                     },
                   })
                 }
               >
                 <div tw="">
-                  <p tw="text-2xl">{fund.metadata.name}</p>
-                  <p tw="text-gray-700">Trader @{shorttenAddress(fund.trader, 10, 10)}</p>
+                  <p tw="text-2xl">{fund[0].metadata?.name}</p>
+                  <p tw="text-gray-700">Trader @{shorttenAddress(fund[0].trader, 10, 10)}</p>
                 </div>
                 <div tw="flex flex-col items-end justify-start">
-                  <p>{fund.totalShare} share</p>
-                  <p>{fromDecimal(fund.totalFund, 12)} TZERO</p>
+                  <p>{fund[0].totalShare} share</p>
+                  <p>{fromDecimal(fund[0].totalFund, 12)} TZERO</p>
                 </div>
               </div>
             ))}

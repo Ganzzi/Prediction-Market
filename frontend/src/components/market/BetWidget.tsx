@@ -17,6 +17,11 @@ type Props = {
   ) => void
 }
 
+type PayloadError = {
+  supply: boolean
+  fund: boolean
+}
+
 const BetWidget = ({ data, userFunds, onBet }: Props) => {
   const { api, activeAccount, activeSigner } = useInkathon()
 
@@ -26,8 +31,16 @@ const BetWidget = ({ data, userFunds, onBet }: Props) => {
   } | null>(null)
   const [selectedFund, setSelectedFund] = useState<SelectOption | null>(null)
   const [supplyToBuy, setsupplyToBuy] = useState<Supply>(0)
+  const [payloadErrors, setPayloadErrors] = useState<PayloadError>({
+    supply: false,
+    fund: false,
+  })
 
   async function handleBet() {
+    setPayloadErrors({
+      supply: !selectedBet ? true : false,
+      fund: !selectedFund ? true : false,
+    })
     if (!selectedBet || !selectedFund) {
       toast.error('supply and fund are required!')
       return
@@ -80,6 +93,9 @@ const BetWidget = ({ data, userFunds, onBet }: Props) => {
         <div tw="flex-1 flex justify-center">
           <Input
             type="number"
+            style={{
+              borderColor: `${payloadErrors.supply && 'red'}`,
+            }}
             placeholder="Supply to buy"
             min={1}
             value={supplyToBuy != 0 ? supplyToBuy : ''}
@@ -96,7 +112,7 @@ const BetWidget = ({ data, userFunds, onBet }: Props) => {
         </div>
         <div tw="flex-1 flex justify-center">
           <SelectList
-            className=""
+            error={payloadErrors.fund}
             onChange={function (value: SelectOption | null): void {
               setSelectedFund(value)
             }}

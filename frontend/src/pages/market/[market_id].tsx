@@ -11,6 +11,7 @@ import {
   useRegisteredContract,
 } from '@scio-labs/use-inkathon'
 import type { NextPage } from 'next'
+import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { toast } from 'react-hot-toast'
@@ -129,9 +130,19 @@ const HomePage: NextPage = () => {
   return (
     <div tw="flex flex-col p-4">
       {/* Rendering Event Details */}
+      <div tw="flex w-full flex-row items-center justify-start space-x-3 px-20 text-3xl">
+        <Link href={'/market'} tw="text-blue-700 hover:text-purple-700">
+          Market
+        </Link>{' '}
+        <p>{' > '}</p> <p>{event?.metadata.name ?? event?.eventId}</p>
+      </div>
+      <hr tw="mt-1" />
       <div tw="my-3 flex w-full flex-col items-center justify-start">
         <div tw="flex flex-row items-center justify-center space-x-3">
-          <p>by @{event?.owner}</p> <button tw="rounded-2xl bg-red-400 px-5 py-2">Resolve</button>
+          <p>by @{event?.owner}</p>{' '}
+          {event?.owner == activeAccount?.address && (
+            <button tw="rounded-2xl bg-red-400 px-5 py-2">Resolve</button>
+          )}
         </div>
         <span>
           question: <p tw="text-5xl">{event?.question}</p>

@@ -1,5 +1,6 @@
 import { InvestmentFundId } from '@/types'
 import Select from 'react-select'
+import 'twin.macro'
 
 export interface SelectOption {
   value: InvestmentFundId
@@ -7,22 +8,21 @@ export interface SelectOption {
 }
 
 interface Props {
-  className?: string
+  error?: boolean
   onChange: (value: SelectOption | null) => void
   options: SelectOption[]
   value: SelectOption | null
   placeholder?: string
 }
 
-export const SelectList: React.FC<Props> = ({
-  className,
-  onChange,
-  options,
-  value,
-  placeholder,
-}) => {
+export const SelectList: React.FC<Props> = ({ error, onChange, options, value, placeholder }) => {
   return (
-    <div tw={className}>
+    <div
+      tw="rounded-md border p-0.5"
+      style={{
+        borderColor: `${error ? 'red' : 'white'}`,
+      }}
+    >
       <Select
         isClearable
         value={value}

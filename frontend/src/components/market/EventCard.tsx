@@ -12,6 +12,8 @@ const EventCard: React.FC<Props> = ({ EventData }) => {
   const event = EventData[0]
   const market = EventData[1]
 
+  console.log(event.owner)
+
   return (
     <div tw={'flex-1 basis-1/3 p-3 hover:p-1'}>
       <div

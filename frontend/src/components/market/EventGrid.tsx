@@ -53,9 +53,7 @@ const EventGrid = () => {
       ) : (
         <div tw="flex flex-row flex-wrap justify-center px-20">
           {(eventData || []).map((event) => (
-            <>
-              <EventCard EventData={event} key={event[0].eventId} />
-            </>
+            <EventCard EventData={event} key={event[0].eventId} />
           ))}
         </div>
       )}

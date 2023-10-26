@@ -23,6 +23,7 @@ pub enum Error {
     TimeExpired,
     TradeNotAvailable,
     TradeNotFound,
+    SomethingWrong,
 }
 
 pub type Result<T> = core::result::Result<T, Error>;
@@ -52,7 +53,7 @@ pub trait EventCore {
         Event,
         EventMarket,
         Supply,
-        Vec<(OutCome, MarketOutCome, Vec<InvestmentFund>)>,
+        Vec<(OutCome, MarketOutCome, Vec<(InvestmentFund, Supply)>)>,
     )>;
 }
 
@@ -98,7 +99,7 @@ pub trait FundCore {
     fn get_funds(
         &self,
         owner: Option<AccountId>,
-    ) -> Result<Vec<(InvestmentFund, Vec<OutCome>, Option<Share>)>>;
+    ) -> Result<Vec<(InvestmentFund, Vec<(OutCome, Supply)>, Option<Share>)>>;
 
     #[ink(message)]
     fn get_owner_share(&self, fund_id: InvestmentFundId, owner: AccountId) -> Result<Share>;
@@ -190,25 +191,48 @@ mod prediction_market {
 
         #[ink(message)]
         fn resolve_event(&mut self, event_id: EventId, winner: OutComeId) -> Result<()> {
-            let mut event = self.event_markets.get(event_id).unwrap();
-            if self.env().block_timestamp() < event.resolve_date {
+            let caller = self.env().caller();
+            let event = self.get_event_by_id(event_id)?;
+            let winning_outcome = self.get_outcome_by_id(winner)?;
+
+            if caller != event.0.owner {
+                return Err(Error::NotOwner);
+            }
+            if self.env().block_timestamp() < event.1.resolve_date || event.1.is_resolved {
                 return Err(Error::ResolveDateNotMatch);
             }
-            if !self
-                .event_to_outcomes
-                .get(event_id)
-                .unwrap_or_default()
-                .contains(&winner)
-                || self.outcomes.get(winner).unwrap().event_id != event_id
-            {
+            if winning_outcome.0.event_id != event_id {
                 return Err(Error::WrongEventOutCome);
             }
-            event.winning_outcome = Some(winner);
 
-            let mut market = self.event_markets.get(event_id).unwrap();
-            market.is_resolved = true;
+            let mut updated_market = event.1;
+            let used_supply = winning_outcome.0.total_supply - winning_outcome.1.available_supply;
+            let prize_per_supply = updated_market.pool / (used_supply as Balance);
 
-            self.event_markets.insert(event_id, &market);
+            let winning_funds = self.get_outcome_funds(winner)?;
+            let mut updated_funds = Vec::new();
+
+            for mut fund in winning_funds {
+                let supply_holding = fund.1;
+                if supply_holding == 0 {
+                    return Err(Error::SomethingWrong);
+                }
+
+                let prize = supply_holding as Balance * prize_per_supply;
+
+                updated_market.pool -= prize;
+                fund.0.total_fund += prize;
+
+                updated_funds.push(fund.0);
+            }
+
+            updated_market.winning_outcome = Some(winner);
+            updated_market.is_resolved = true;
+
+            self.event_markets.insert(event_id, &updated_market);
+            for fund in updated_funds {
+                self.investment_funds.insert(fund.investment_fund_id, &fund);
+            }
 
             Ok(())
         }
@@ -230,7 +254,7 @@ mod prediction_market {
             Event,
             EventMarket,
             Supply,
-            Vec<(OutCome, MarketOutCome, Vec<InvestmentFund>)>,
+            Vec<(OutCome, MarketOutCome, Vec<(InvestmentFund, Supply)>)>,
         )> {
             let event = self.get_event_by_id(event_id)?;
             let event_outcome_ids = self.event_to_outcomes.get(event_id).unwrap_or_default();
@@ -314,6 +338,7 @@ mod prediction_market {
             fund_id: InvestmentFundId,
             supplies: Supply,
         ) -> Result<()> {
+            let deposit = self.env().transferred_value();
             if self.get_fund_by_id(fund_id)?.trader != self.env().caller() {
                 return Err(Error::NotOwner);
             }
@@ -321,10 +346,15 @@ mod prediction_market {
             let outcome = self.outcomes.get(outcome_id).unwrap();
             let mut market_outcomes = self.market_outcomes.get(outcome_id).unwrap();
 
+            let mut market = self.get_event_by_id(outcome.event_id)?.1;
+            let mut fund = self.get_fund_by_id(fund_id)?;
+            if market.is_resolved || self.env().block_timestamp() < market.resolve_date {
+                return Err(Error::ResolveDateNotMatch);
+            }
             if (market_outcomes.available_supply as i64 - supplies as i64) < 0 {
                 return Err(Error::OutOfSupply);
             }
-            if self.env().transferred_value() < (supplies as Balance * outcome.deposit_per_supply) {
+            if deposit < (supplies as Balance * outcome.deposit_per_supply) {
                 return Err(Error::DepositTooLow);
             }
             market_outcomes.available_supply -= supplies;
@@ -334,11 +364,16 @@ mod prediction_market {
             funds_of_outcome.push(fund_id);
             outcomes_of_fund.push(outcome_id);
 
+            fund.total_fund -= deposit;
+            market.pool += deposit;
+
             self.market_outcomes.insert(outcome_id, &market_outcomes);
             self.outcome_fund_to_supplies
                 .insert((outcome_id, fund_id), &supplies);
             self.outcome_to_funds.insert(outcome_id, &funds_of_outcome);
             self.fund_to_outcomes.insert(fund_id, &outcomes_of_fund);
+            self.event_markets.insert(outcome.event_id, &market);
+            self.investment_funds.insert(fund_id, &fund);
 
             Ok(())
         }
@@ -435,7 +470,7 @@ mod prediction_market {
         fn get_funds(
             &self,
             owner: Option<AccountId>,
-        ) -> Result<Vec<(InvestmentFund, Vec<OutCome>, Option<Share>)>> {
+        ) -> Result<Vec<(InvestmentFund, Vec<(OutCome, Supply)>, Option<Share>)>> {
             let mut rs = Vec::new();
 
             for i in 0..self.next_fund_id {
@@ -561,18 +596,39 @@ mod prediction_market {
             Ok(trade.unwrap())
         }
 
-        fn get_outcome_funds(&self, outcome_id: OutComeId) -> Result<Vec<InvestmentFund>> {
+        fn get_outcome_funds(
+            &self,
+            outcome_id: OutComeId,
+        ) -> Result<Vec<(InvestmentFund, Supply)>> {
             let mut rs = Vec::new();
             for i in self.outcome_to_funds.get(outcome_id).unwrap_or(Vec::new()) {
-                rs.push(self.investment_funds.get(i).unwrap());
+                rs.push((
+                    self.investment_funds.get(i).unwrap(),
+                    self.outcome_fund_to_supplies
+                        .get((outcome_id, i))
+                        .unwrap_or_default(),
+                ));
             }
             Ok(rs)
         }
 
-        fn get_fund_outcomes(&self, fund_id: InvestmentFundId) -> Result<Vec<OutCome>> {
+        fn get_fund_outcomes(&self, fund_id: InvestmentFundId) -> Result<Vec<(OutCome, Supply)>> {
             let mut rs = Vec::new();
-            for i in self.fund_to_outcomes.get(fund_id).unwrap_or(Vec::new()) {
-                rs.push(self.outcomes.get(i).unwrap());
+            for oid in self.fund_to_outcomes.get(fund_id).unwrap_or(Vec::new()) {
+                rs.push((
+                    self.outcomes.get(oid).unwrap(),
+                    self.outcome_fund_to_supplies
+                        .get((oid, fund_id))
+                        .unwrap_or_default(),
+                ));
+            }
+            Ok(rs)
+        }
+
+        fn get_event_outcomes(&self, event_id: EventId) -> Result<Vec<(OutCome, MarketOutCome)>> {
+            let mut rs = Vec::new();
+            for i in self.event_to_outcomes.get(event_id).unwrap_or(Vec::new()) {
+                rs.push(self.get_outcome_by_id(i)?);
             }
             Ok(rs)
         }
