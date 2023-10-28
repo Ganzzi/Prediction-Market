@@ -16,7 +16,7 @@ const FundCard: React.FC<Props> = ({ fundData }) => {
   return (
     <div tw={'flex-1 basis-1/3 p-3 hover:p-1'}>
       <div
-        tw="flex flex-col rounded-2xl bg-blue-200 p-3 hover:bg-green-400"
+        tw="flex h-52 flex-col rounded-2xl bg-blue-200 p-3 hover:bg-green-400"
         onClick={() =>
           Router.push({
             pathname: `/fund`,

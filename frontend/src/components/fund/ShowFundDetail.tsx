@@ -11,6 +11,7 @@ import {
   useRegisteredContract,
 } from '@scio-labs/use-inkathon'
 import Image from 'next/image'
+import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import 'twin.macro'
@@ -21,6 +22,7 @@ type Props = {
 }
 
 function ShowFundDetail({ onClose, fundData }: Props) {
+  const router = useRouter()
   const { api, activeAccount, activeSigner } = useInkathon()
   const { contract } = useRegisteredContract(ContractIds.prediction_market)
 
@@ -59,7 +61,7 @@ function ShowFundDetail({ onClose, fundData }: Props) {
   }
 
   useEffect(() => {
-    // fetchFund()
+    fetchFund()
   }, [contract])
 
   async function handleTransfer() {
@@ -126,62 +128,75 @@ function ShowFundDetail({ onClose, fundData }: Props) {
           </div>
           <div tw="my-5 flex flex-col items-center justify-start">
             <p tw="text-xs text-green-500">You hold {ownerFund} share</p>
-            <div tw="rounded-3xl bg-blue-400 px-5 py-2 hover:bg-indigo-600">Buy/Sell share</div>
           </div>
-          <div tw="mb-5 flex flex-col items-center justify-start">
-            {showTransferInput && (
-              <div tw="flex flex-col items-center">
-                <input
-                  type="number"
-                  tw="mb-1 rounded-xl border-gray-200 border-2 px-3 text-center text-sm hover:border-black"
-                  onChange={(e) =>
-                    setTransferPayload({
-                      ...transferPayload,
-                      amount: parseInt(e.target.value),
-                    })
-                  }
-                  value={transferPayload.amount != 0 ? transferPayload.amount : ''}
-                  placeholder="Share"
-                />
-                <input
-                  type="text"
-                  tw="mb-1 rounded-xl border-gray-200 border-2 px-3 text-center text-sm hover:border-black"
-                  onChange={(e) =>
-                    setTransferPayload({
-                      ...transferPayload,
-                      recipient: e.target.value,
-                    })
-                  }
-                  value={transferPayload.recipient}
-                  placeholder="Recipient"
-                />
-              </div>
-            )}
-            <div tw="flex flex-row items-center justify-center">
-              <div
-                tw="rounded-3xl bg-orange-500 px-5 py-2 hover:bg-red-600"
-                onClick={handleTransfer}
-              >
-                Transfer
-              </div>
-              {showTransferInput && (
-                <div tw="px-1 text-red-600 text-2xl" onClick={() => setShowTransferInput(false)}>
-                  X
-                </div>
-              )}
+          <div tw="my-5 flex flex-col items-center justify-start">
+            <div
+              tw="rounded-3xl bg-blue-400 px-5 py-2 hover:bg-indigo-600"
+              onClick={() => router.push(`/fund/${fundData[0].investmentFundId}/proposal`)}
+            >
+              Buy/Sell share
             </div>
           </div>
+          {ownerFund != 0 && (
+            <div tw="mb-5 flex flex-col items-center justify-start">
+              {showTransferInput && (
+                <div tw="flex flex-col items-center">
+                  <input
+                    type="number"
+                    tw="mb-1 rounded-xl border-gray-200 border-2 px-3 text-center text-sm hover:border-black"
+                    onChange={(e) =>
+                      setTransferPayload({
+                        ...transferPayload,
+                        amount: parseInt(e.target.value),
+                      })
+                    }
+                    value={transferPayload.amount != 0 ? transferPayload.amount : ''}
+                    placeholder="Share"
+                  />
+                  <input
+                    type="text"
+                    tw="mb-1 rounded-xl border-gray-200 border-2 px-3 text-center text-sm hover:border-black"
+                    onChange={(e) =>
+                      setTransferPayload({
+                        ...transferPayload,
+                        recipient: e.target.value,
+                      })
+                    }
+                    value={transferPayload.recipient}
+                    placeholder="Recipient"
+                  />
+                </div>
+              )}
+              <div tw="flex flex-row items-center justify-center">
+                <div
+                  tw="rounded-3xl bg-orange-500 px-5 py-2 hover:bg-red-600"
+                  onClick={handleTransfer}
+                >
+                  Transfer
+                </div>
+                {showTransferInput && (
+                  <div tw="px-1 text-red-600 text-2xl" onClick={() => setShowTransferInput(false)}>
+                    X
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </div>
         {fundData[1].length != 0 && (
           <div tw="mx-10 w-full">
             <p tw="mb-3 text-center">Betted Outcomes</p>
             <div tw="flex h-72 w-80 flex-col justify-start space-y-2 overflow-y-auto px-5">
               {fundData[1].map((outcome) => (
-                <div tw="w-full rounded-3xl bg-blue-300 px-5 text-center" key={outcome.outcomeId}>
-                  <p tw="text-xl">{outcome.description}</p>
+                <div
+                  tw="w-full rounded-3xl bg-blue-300 px-5 py-0.5 text-center hover:bg-green-400"
+                  key={outcome[0].outcomeId}
+                  onClick={() => router.push(`/market/${outcome[0].eventId}`)}
+                >
+                  <p tw="text-xl">{outcome[0].description}</p>
                   <p tw="text-xs">
-                    {outcome.totalSupply} supplies - {fromDecimal(outcome.depositPerSupply, 12)}{' '}
-                    TZERO/supply
+                    {outcome[0].totalSupply} supplies -{' '}
+                    {fromDecimal(outcome[0].depositPerSupply, 12)} (TZERO/supply)
                   </p>
                 </div>
               ))}

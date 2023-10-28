@@ -92,28 +92,34 @@ const CreateForm = () => {
       <VStack spacing={10}>
         <FormControl id="metadata.name">
           <FormLabel>Event Name (optional)</FormLabel>
-          <Input type="text" {...register('metadata.name')} />
+          <Input borderColor={'green.800'} type="text" {...register('metadata.name')} />
         </FormControl>
 
         <FormControl id="metadata.imageUrl">
           <FormLabel>Event Image Url (optional)</FormLabel>
-          <Input type="text" {...register('metadata.imageUrl')} />
+          <Input borderColor={'green.800'} type="text" {...register('metadata.imageUrl')} />
         </FormControl>
 
         <FormControl id="metadata.description">
           <FormLabel>Event Description (optional)</FormLabel>
-          <Input type="text" {...register('metadata.description')} />
+          <Input borderColor={'green.800'} type="text" {...register('metadata.description')} />
         </FormControl>
 
         <FormControl id="deposit" isRequired>
           <FormLabel>Event Creation Deposit (TZERO - MIN 1)</FormLabel>
 
-          <Input type="number" defaultValue={1} {...register('deposit')} />
+          <Input
+            borderColor={'green.800'}
+            type="number"
+            defaultValue={1}
+            {...register('deposit')}
+          />
         </FormControl>
 
         <FormControl id="resolveDate" isRequired>
           <FormLabel>Resolve Date</FormLabel>
           <Input
+            borderColor={'green.800'}
             type="date"
             onChange={(e) => {
               setValue('resolveDate', dateToMilliseconds(e.target.value))
@@ -123,7 +129,11 @@ const CreateForm = () => {
 
         <FormControl id="question" isRequired>
           <FormLabel>Question</FormLabel>
-          <Input type="text" {...register('question', { required: true })} />
+          <Input
+            borderColor={'green.800'}
+            type="text"
+            {...register('question', { required: true })}
+          />
         </FormControl>
 
         <Box tw="flex w-full flex-row items-center justify-between">
@@ -144,6 +154,7 @@ const CreateForm = () => {
             <FormControl id={`bets[${index}].description`} isRequired>
               <FormLabel>Description</FormLabel>
               <Input
+                borderColor={'green.800'}
                 type="text"
                 value={betItems[index].description}
                 onChange={(e) => {
@@ -157,6 +168,7 @@ const CreateForm = () => {
             <FormControl id={`bets.${index}.totalSupply`} isRequired>
               <FormLabel>Total Supply</FormLabel>
               <Input
+                borderColor={'green.800'}
                 type="number"
                 value={betItems[index].totalSupply}
                 onChange={(e) => {
@@ -170,6 +182,7 @@ const CreateForm = () => {
             <FormControl id={`bets.${index}.depositPerSupply`} isRequired>
               <FormLabel>Deposit per Supply</FormLabel>
               <Input
+                borderColor={'green.800'}
                 type="number"
                 value={betItems[index].depositPerSupply}
                 onChange={(e) => {

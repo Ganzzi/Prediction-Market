@@ -24,6 +24,9 @@ pub enum Error {
     TradeNotAvailable,
     TradeNotFound,
     SomethingWrong,
+    NoBodyBetted,
+    MoreThanOneSupply,
+    NotEnoughBalance,
 }
 
 pub type Result<T> = core::result::Result<T, Error>;
@@ -207,6 +210,9 @@ mod prediction_market {
 
             let mut updated_market = event.1;
             let used_supply = winning_outcome.0.total_supply - winning_outcome.1.available_supply;
+            if used_supply == 0 {
+                return Err(Error::NoBodyBetted);
+            }
             let prize_per_supply = updated_market.pool / (used_supply as Balance);
 
             let winning_funds = self.get_outcome_funds(winner)?;
@@ -354,8 +360,14 @@ mod prediction_market {
             if (market_outcomes.available_supply as i64 - supplies as i64) < 0 {
                 return Err(Error::OutOfSupply);
             }
+            if supplies <= 0 {
+                return Err(Error::MoreThanOneSupply);
+            }
             if deposit < (supplies as Balance * outcome.deposit_per_supply) {
                 return Err(Error::DepositTooLow);
+            }
+            if deposit > fund.total_fund {
+                return Err(Error::NotEnoughBalance);
             }
             market_outcomes.available_supply -= supplies;
 

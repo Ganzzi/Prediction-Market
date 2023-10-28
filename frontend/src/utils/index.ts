@@ -28,7 +28,7 @@ function stringToNumber(price: string | number): number | null {
 
 function dateToMilliseconds(dateString: string): number {
   const [year, month, day] = dateString.split('-').map(Number)
-  const date = new Date(year, month - 1, day) // Note that month is 0-indexed
+  const date = new Date(year, month - 1, day)
 
   return date.getTime()
 }

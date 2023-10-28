@@ -32,7 +32,8 @@
     "**/*.tsx",
     "**/*.json",
     ".next/types/**/*.ts",
-    "src/pages/market"
+    "src/pages/market",
+    "src/pages/fund/[fund_id]"
   ],
   "exclude": ["node_modules"],
   "types": ["src/types"]

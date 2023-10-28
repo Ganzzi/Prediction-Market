@@ -12,12 +12,10 @@ const EventCard: React.FC<Props> = ({ EventData }) => {
   const event = EventData[0]
   const market = EventData[1]
 
-  console.log(event.owner)
-
   return (
     <div tw={'flex-1 basis-1/3 p-3 hover:p-1'}>
       <div
-        tw="flex flex-col rounded-2xl bg-blue-200 p-3 hover:bg-green-400"
+        tw="flex h-48 flex-col rounded-2xl bg-blue-200 p-3 hover:bg-green-400"
         onClick={() =>
           Router.push({
             pathname: `/market/${event.eventId}`,
@@ -32,7 +30,7 @@ const EventCard: React.FC<Props> = ({ EventData }) => {
           <p>{parsePrice(market.pool.toString(), 12)} TZERO</p>
         </div>
         <div>
-          <p>{market.totalSupply} supplies</p>
+          <p>{EventData[2]} supplies</p>
           <p>{milisecondsToDate(market.resolveDate)} ends</p>
         </div>
       </div>

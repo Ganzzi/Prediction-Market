@@ -1,4 +1,4 @@
-import { AccountId, Balance, InvestmentFundId, Share } from '.'
+import { AccountId, Balance, InvestmentFundId, Share, Timestamp, TradeId } from '.'
 
 type InvestmentFund = {
   investmentFundId: InvestmentFundId
@@ -13,4 +13,15 @@ type FundMetadata = {
   imageUrl: string | null
 }
 
-export type { FundMetadata, InvestmentFund }
+type FundTrade = {
+  investmentFundId: InvestmentFundId
+  tradeId: TradeId
+  proponent: AccountId
+  proposedPerson: AccountId | null
+  share: Share
+  price: Balance
+  closeTime: Timestamp
+  isCompleted: boolean
+}
+
+export type { FundMetadata, FundTrade, InvestmentFund }

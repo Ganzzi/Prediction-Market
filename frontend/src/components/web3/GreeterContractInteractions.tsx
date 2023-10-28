@@ -80,6 +80,7 @@ export const GreeterContractInteractions: FC = () => {
           <FormControl>
             <FormLabel>Fetched Greeting</FormLabel>
             <Input
+              borderColor={'green.800'}
               placeholder={fetchIsLoading || !contract ? 'Loading…' : greeterMessage}
               disabled={true}
             />
@@ -92,7 +93,11 @@ export const GreeterContractInteractions: FC = () => {
             <Stack direction="row" spacing={2} align="end">
               <FormControl>
                 <FormLabel>Update Greeting</FormLabel>
-                <Input disabled={updateIsLoading} {...register('newMessage')} />
+                <Input
+                  borderColor={'green.800'}
+                  disabled={updateIsLoading}
+                  {...register('newMessage')}
+                />
               </FormControl>
               <Button
                 type="submit"

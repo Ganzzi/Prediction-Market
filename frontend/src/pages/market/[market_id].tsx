@@ -2,7 +2,7 @@ import Attendence from '@/components/market/Attendence'
 import BetWidget from '@/components/market/BetWidget'
 import { ContractIds } from '@/deployments/deployments'
 import { Balance, EventDetailData, FundData, InvestmentFundId, OutComeId, Supply } from '@/types'
-import { stringToNumber } from '@/utils'
+import { milisecondsToDate, stringToNumber } from '@/utils'
 import { contractTxWithToast } from '@/utils/contractTxWithToast'
 import {
   contractQuery,
@@ -19,7 +19,7 @@ import 'twin.macro'
 
 const HomePage: NextPage = () => {
   const params = useParams()
-  const market_id = params.market_id
+  const market_id = params?.market_id
   const { error } = useInkathon()
   const { api, activeAccount, activeSigner } = useInkathon()
   const { contract, address: contractAddress } = useRegisteredContract(
@@ -28,6 +28,9 @@ const HomePage: NextPage = () => {
   const [eventDetail, setEventDetail] = useState<EventDetailData | null>(null)
   const [fetchIsLoading, setFetchIsLoading] = useState<boolean>()
   const [userFunds, setUserFunds] = useState<Array<FundData>>([])
+
+  const [event, eventMarket, totalSupply, data] = eventDetail ? eventDetail : [null, null, 0, []]
+  const winner = data.find((array) => array[0].outcomeId == eventMarket?.winningOutcome)
 
   const fetchEventDetail = async () => {
     if (!contract || !api) return
@@ -101,6 +104,10 @@ const HomePage: NextPage = () => {
     supply: Supply,
     depositPerSupply: Balance,
   ) {
+    if (eventMarket?.isResolved) {
+      toast.error('Event has ended!')
+      return
+    }
     if (!activeAccount || !contract || !activeSigner || !api) {
       toast.error('Wallet not connected. Try again…')
       return
@@ -125,7 +132,32 @@ const HomePage: NextPage = () => {
     }
   }
 
-  const [event, eventMarket, totalSupply, data] = eventDetail ? eventDetail : [null, null, 0, []]
+  async function handleResolve(winningOutcome: OutComeId) {
+    if (eventMarket?.isResolved) {
+      toast.error('Event has ended!')
+      return
+    }
+    if (!activeAccount || !contract || !activeSigner || !api) {
+      toast.error('Wallet not connected. Try again…')
+      return
+    }
+
+    try {
+      const rs = await contractTxWithToast(
+        api,
+        activeAccount.address,
+        contract,
+        'eventCore::resolveEvent',
+        {},
+        [market_id, winningOutcome],
+      )
+      if (rs.result?.isCompleted) {
+        await fetchEventDetail()
+      }
+    } catch (e) {
+      console.error(e)
+    }
+  }
 
   return (
     <div tw="flex flex-col p-4">
@@ -138,20 +170,32 @@ const HomePage: NextPage = () => {
       </div>
       <hr tw="mt-1" />
       <div tw="my-3 flex w-full flex-col items-center justify-start">
-        <div tw="flex flex-row items-center justify-center space-x-3">
-          <p>by @{event?.owner}</p>{' '}
-          {event?.owner == activeAccount?.address && (
-            <button tw="rounded-2xl bg-red-400 px-5 py-2">Resolve</button>
+        <div tw="flex flex-col items-center justify-center space-x-3">
+          <p>by @{event?.owner}</p>
+          {eventMarket?.isResolved ? (
+            <div tw="text-blue-700">winning bet: {winner?.[0].description}</div>
+          ) : (
+            event?.owner != activeAccount?.address && (
+              <div>
+                <p>End in {milisecondsToDate(eventMarket?.resolveDate)}</p>
+              </div>
+            )
           )}
         </div>
-        <span>
-          question: <p tw="text-5xl">{event?.question}</p>
+        <span tw="mt-5 rounded-3xl border-2 border-black px-5 py-3">
+          <p tw="text-5xl">{event?.question}</p>
         </span>
       </div>
 
       {/* Rendering Other Data */}
-      <div tw="my-10 flex flex-col items-center justify-start">
-        <BetWidget userFunds={userFunds} data={data} onBet={handleBet} />
+      <div tw="my-5 flex flex-col items-center justify-start">
+        <BetWidget
+          userFunds={userFunds}
+          data={data}
+          eventOwner={event?.owner ?? ''}
+          onResolve={handleResolve}
+          onBet={handleBet}
+        />
         <Attendence data={data} />
       </div>
     </div>

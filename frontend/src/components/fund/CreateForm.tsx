@@ -68,23 +68,28 @@ const CreateForm = () => {
       <VStack spacing={10}>
         <FormControl id="totalShare" isRequired>
           <FormLabel>Total Share (MIN 100 & DEVISIBLE BY 100)</FormLabel>
-          <Input type="text" {...register('totalShare')} />
+          <Input borderColor={'green.800'} type="text" {...register('totalShare')} />
         </FormControl>
 
         <FormControl id="metadata.name">
           <FormLabel>Investment Fund name (optional)</FormLabel>
-          <Input type="text" {...register('metadata.name')} />
+          <Input borderColor={'green.800'} type="text" {...register('metadata.name')} />
         </FormControl>
 
         <FormControl id="metadata.imageUrl">
           <FormLabel>Investment Fund Image Url (optional)</FormLabel>
-          <Input type="text" {...register('metadata.imageUrl')} />
+          <Input borderColor={'green.800'} type="text" {...register('metadata.imageUrl')} />
         </FormControl>
 
         <FormControl id="deposit" isRequired>
           <FormLabel>Investment Fund Creation Deposit (TZERO - MIN 1)</FormLabel>
 
-          <Input type="number" defaultValue={1} {...register('deposit')} />
+          <Input
+            borderColor={'green.800'}
+            type="number"
+            defaultValue={1}
+            {...register('deposit')}
+          />
         </FormControl>
 
         <Button colorScheme="blue" type="submit">

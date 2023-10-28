@@ -158,6 +158,10 @@ export const ConnectButton: FC<ConnectButtonProps> = () => {
         maxHeight="40vh"
         overflow="scroll"
       >
+        <MenuItem tw="flex flex-row justify-center bg-transparent text-center text-2xl hocus:bg-gray-800">
+          <Link href="/profile">Profile</Link>
+        </MenuItem>
+
         {/* Supported Chains */}
         {supportedChains.map((chain) => (
           <MenuItem
