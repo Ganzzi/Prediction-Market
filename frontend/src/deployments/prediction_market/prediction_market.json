@@ -1,0 +1,2556 @@
+{
+  "source": {
+    "hash": "0xee5124e5de66ac87a8b96ddc45e7db52410d5dd995d1e5ba6560265d31ce3f7f",
+    "language": "ink! 4.3.0",
+    "compiler": "rustc 1.72.1",
+    "build_info": {
+      "build_mode": "Release",
+      "cargo_contract_version": "3.2.0",
+      "rust_toolchain": "stable-x86_64-unknown-linux-gnu",
+      "wasm_opt_settings": {
+        "keep_debug_symbols": false,
+        "optimization_passes": "Z"
+      }
+    }
+  },
+  "contract": {
+    "name": "prediction_market",
+    "version": "0.1.0",
+    "authors": ["[your_name] <[your_email]>"]
+  },
+  "spec": {
+    "constructors": [
+      {
+        "args": [],
+        "default": false,
+        "docs": [],
+        "label": "default",
+        "payable": false,
+        "returnType": {
+          "displayName": ["ink_primitives", "ConstructorResult"],
+          "type": 8
+        },
+        "selector": "0xed4b9d1b"
+      }
+    ],
+    "docs": [],
+    "environment": {
+      "accountId": {
+        "displayName": ["AccountId"],
+        "type": 1
+      },
+      "balance": {
+        "displayName": ["Balance"],
+        "type": 5
+      },
+      "blockNumber": {
+        "displayName": ["BlockNumber"],
+        "type": 57
+      },
+      "chainExtension": {
+        "displayName": ["ChainExtension"],
+        "type": 58
+      },
+      "hash": {
+        "displayName": ["Hash"],
+        "type": 2
+      },
+      "maxEventTopics": 3,
+      "timestamp": {
+        "displayName": ["Timestamp"],
+        "type": 0
+      }
+    },
+    "events": [],
+    "lang_error": {
+      "displayName": ["ink", "LangError"],
+      "type": 10
+    },
+    "messages": [
+      {
+        "args": [
+          {
+            "label": "question",
+            "type": {
+              "displayName": ["String"],
+              "type": 4
+            }
+          },
+          {
+            "label": "resolve_date",
+            "type": {
+              "displayName": ["Timestamp"],
+              "type": 0
+            }
+          },
+          {
+            "label": "bets",
+            "type": {
+              "displayName": ["Vec"],
+              "type": 11
+            }
+          },
+          {
+            "label": "metadata",
+            "type": {
+              "displayName": ["EventMetadata"],
+              "type": 13
+            }
+          }
+        ],
+        "default": false,
+        "docs": [],
+        "label": "EventCore::create_event",
+        "mutates": true,
+        "payable": true,
+        "returnType": {
+          "displayName": ["ink", "MessageResult"],
+          "type": 15
+        },
+        "selector": "0x74815c92"
+      },
+      {
+        "args": [
+          {
+            "label": "event_id",
+            "type": {
+              "displayName": ["EventId"],
+              "type": 0
+            }
+          },
+          {
+            "label": "winner",
+            "type": {
+              "displayName": ["OutComeId"],
+              "type": 0
+            }
+          }
+        ],
+        "default": false,
+        "docs": [],
+        "label": "EventCore::resolve_event",
+        "mutates": true,
+        "payable": false,
+        "returnType": {
+          "displayName": ["ink", "MessageResult"],
+          "type": 18
+        },
+        "selector": "0x425be673"
+      },
+      {
+        "args": [],
+        "default": false,
+        "docs": [],
+        "label": "EventCore::get_events",
+        "mutates": false,
+        "payable": false,
+        "returnType": {
+          "displayName": ["ink", "MessageResult"],
+          "type": 20
+        },
+        "selector": "0x7f58160c"
+      },
+      {
+        "args": [
+          {
+            "label": "event_id",
+            "type": {
+              "displayName": ["EventId"],
+              "type": 0
+            }
+          }
+        ],
+        "default": false,
+        "docs": [],
+        "label": "EventCore::get_event_detail",
+        "mutates": false,
+        "payable": false,
+        "returnType": {
+          "displayName": ["ink", "MessageResult"],
+          "type": 27
+        },
+        "selector": "0x23b61a0e"
+      },
+      {
+        "args": [
+          {
+            "label": "total_share",
+            "type": {
+              "displayName": ["Share"],
+              "type": 0
+            }
+          },
+          {
+            "label": "metadata",
+            "type": {
+              "displayName": ["FundMetadata"],
+              "type": 37
+            }
+          }
+        ],
+        "default": false,
+        "docs": [],
+        "label": "FundCore::create_fund",
+        "mutates": true,
+        "payable": true,
+        "returnType": {
+          "displayName": ["ink", "MessageResult"],
+          "type": 15
+        },
+        "selector": "0x52226f74"
+      },
+      {
+        "args": [
+          {
+            "label": "fund_id",
+            "type": {
+              "displayName": ["InvestmentFundId"],
+              "type": 0
+            }
+          },
+          {
+            "label": "recipient",
+            "type": {
+              "displayName": ["AccountId"],
+              "type": 1
+            }
+          },
+          {
+            "label": "amount",
+            "type": {
+              "displayName": ["Share"],
+              "type": 0
+            }
+          }
+        ],
+        "default": false,
+        "docs": [],
+        "label": "FundCore::transfer_share",
+        "mutates": true,
+        "payable": false,
+        "returnType": {
+          "displayName": ["ink", "MessageResult"],
+          "type": 38
+        },
+        "selector": "0x926d3b11"
+      },
+      {
+        "args": [
+          {
+            "label": "outcome_id",
+            "type": {
+              "displayName": ["OutComeId"],
+              "type": 0
+            }
+          },
+          {
+            "label": "fund_id",
+            "type": {
+              "displayName": ["InvestmentFundId"],
+              "type": 0
+            }
+          },
+          {
+            "label": "supplies",
+            "type": {
+              "displayName": ["Supply"],
+              "type": 0
+            }
+          }
+        ],
+        "default": false,
+        "docs": [],
+        "label": "FundCore::bet",
+        "mutates": true,
+        "payable": true,
+        "returnType": {
+          "displayName": ["ink", "MessageResult"],
+          "type": 18
+        },
+        "selector": "0xb79cc617"
+      },
+      {
+        "args": [
+          {
+            "label": "fund_id",
+            "type": {
+              "displayName": ["InvestmentFundId"],
+              "type": 0
+            }
+          },
+          {
+            "label": "amount",
+            "type": {
+              "displayName": ["Share"],
+              "type": 0
+            }
+          },
+          {
+            "label": "price",
+            "type": {
+              "displayName": ["Balance"],
+              "type": 5
+            }
+          },
+          {
+            "label": "duration",
+            "type": {
+              "displayName": ["Option"],
+              "type": 26
+            }
+          },
+          {
+            "label": "proposed_person",
+            "type": {
+              "displayName": ["Option"],
+              "type": 41
+            }
+          }
+        ],
+        "default": false,
+        "docs": [],
+        "label": "FundCore::create_proposal",
+        "mutates": true,
+        "payable": false,
+        "returnType": {
+          "displayName": ["ink", "MessageResult"],
+          "type": 15
+        },
+        "selector": "0x43966b21"
+      },
+      {
+        "args": [
+          {
+            "label": "trade_id",
+            "type": {
+              "displayName": ["TradeId"],
+              "type": 0
+            }
+          }
+        ],
+        "default": false,
+        "docs": [],
+        "label": "FundCore::accept_proposal",
+        "mutates": true,
+        "payable": true,
+        "returnType": {
+          "displayName": ["ink", "MessageResult"],
+          "type": 18
+        },
+        "selector": "0x94a8b519"
+      },
+      {
+        "args": [
+          {
+            "label": "owner",
+            "type": {
+              "displayName": ["Option"],
+              "type": 41
+            }
+          }
+        ],
+        "default": false,
+        "docs": [],
+        "label": "FundCore::get_funds",
+        "mutates": false,
+        "payable": false,
+        "returnType": {
+          "displayName": ["ink", "MessageResult"],
+          "type": 42
+        },
+        "selector": "0xd5c20a44"
+      },
+      {
+        "args": [
+          {
+            "label": "fund_id",
+            "type": {
+              "displayName": ["InvestmentFundId"],
+              "type": 0
+            }
+          },
+          {
+            "label": "owner",
+            "type": {
+              "displayName": ["AccountId"],
+              "type": 1
+            }
+          }
+        ],
+        "default": false,
+        "docs": [],
+        "label": "FundCore::get_owner_share",
+        "mutates": false,
+        "payable": false,
+        "returnType": {
+          "displayName": ["ink", "MessageResult"],
+          "type": 15
+        },
+        "selector": "0xe42c51ab"
+      },
+      {
+        "args": [
+          {
+            "label": "proponent",
+            "type": {
+              "displayName": ["Option"],
+              "type": 41
+            }
+          }
+        ],
+        "default": false,
+        "docs": [],
+        "label": "FundCore::get_proposals",
+        "mutates": false,
+        "payable": false,
+        "returnType": {
+          "displayName": ["ink", "MessageResult"],
+          "type": 48
+        },
+        "selector": "0x9519727b"
+      },
+      {
+        "args": [
+          {
+            "label": "fund_id",
+            "type": {
+              "displayName": ["InvestmentFundId"],
+              "type": 0
+            }
+          }
+        ],
+        "default": false,
+        "docs": [],
+        "label": "FundCore::get_fund_proposals",
+        "mutates": false,
+        "payable": false,
+        "returnType": {
+          "displayName": ["ink", "MessageResult"],
+          "type": 53
+        },
+        "selector": "0x6dc7c0bd"
+      }
+    ]
+  },
+  "storage": {
+    "root": {
+      "layout": {
+        "struct": {
+          "fields": [
+            {
+              "layout": {
+                "root": {
+                  "layout": {
+                    "struct": {
+                      "fields": [
+                        {
+                          "layout": {
+                            "leaf": {
+                              "key": "0x193390a7",
+                              "ty": 0
+                            }
+                          },
+                          "name": "event_id"
+                        },
+                        {
+                          "layout": {
+                            "leaf": {
+                              "key": "0x193390a7",
+                              "ty": 1
+                            }
+                          },
+                          "name": "owner"
+                        },
+                        {
+                          "layout": {
+                            "leaf": {
+                              "key": "0x193390a7",
+                              "ty": 4
+                            }
+                          },
+                          "name": "question"
+                        },
+                        {
+                          "layout": {
+                            "struct": {
+                              "fields": [
+                                {
+                                  "layout": {
+                                    "enum": {
+                                      "dispatchKey": "0x193390a7",
+                                      "name": "Option",
+                                      "variants": {
+                                        "0": {
+                                          "fields": [],
+                                          "name": "None"
+                                        },
+                                        "1": {
+                                          "fields": [
+                                            {
+                                              "layout": {
+                                                "leaf": {
+                                                  "key": "0x193390a7",
+                                                  "ty": 4
+                                                }
+                                              },
+                                              "name": "0"
+                                            }
+                                          ],
+                                          "name": "Some"
+                                        }
+                                      }
+                                    }
+                                  },
+                                  "name": "name"
+                                },
+                                {
+                                  "layout": {
+                                    "enum": {
+                                      "dispatchKey": "0x193390a7",
+                                      "name": "Option",
+                                      "variants": {
+                                        "0": {
+                                          "fields": [],
+                                          "name": "None"
+                                        },
+                                        "1": {
+                                          "fields": [
+                                            {
+                                              "layout": {
+                                                "leaf": {
+                                                  "key": "0x193390a7",
+                                                  "ty": 4
+                                                }
+                                              },
+                                              "name": "0"
+                                            }
+                                          ],
+                                          "name": "Some"
+                                        }
+                                      }
+                                    }
+                                  },
+                                  "name": "image_url"
+                                },
+                                {
+                                  "layout": {
+                                    "enum": {
+                                      "dispatchKey": "0x193390a7",
+                                      "name": "Option",
+                                      "variants": {
+                                        "0": {
+                                          "fields": [],
+                                          "name": "None"
+                                        },
+                                        "1": {
+                                          "fields": [
+                                            {
+                                              "layout": {
+                                                "leaf": {
+                                                  "key": "0x193390a7",
+                                                  "ty": 4
+                                                }
+                                              },
+                                              "name": "0"
+                                            }
+                                          ],
+                                          "name": "Some"
+                                        }
+                                      }
+                                    }
+                                  },
+                                  "name": "description"
+                                }
+                              ],
+                              "name": "EventMetadata"
+                            }
+                          },
+                          "name": "metadata"
+                        }
+                      ],
+                      "name": "Event"
+                    }
+                  },
+                  "root_key": "0x193390a7"
+                }
+              },
+              "name": "events"
+            },
+            {
+              "layout": {
+                "root": {
+                  "layout": {
+                    "struct": {
+                      "fields": [
+                        {
+                          "layout": {
+                            "leaf": {
+                              "key": "0x2738b4a3",
+                              "ty": 0
+                            }
+                          },
+                          "name": "event_id"
+                        },
+                        {
+                          "layout": {
+                            "leaf": {
+                              "key": "0x2738b4a3",
+                              "ty": 5
+                            }
+                          },
+                          "name": "pool"
+                        },
+                        {
+                          "layout": {
+                            "leaf": {
+                              "key": "0x2738b4a3",
+                              "ty": 6
+                            }
+                          },
+                          "name": "is_resolved"
+                        },
+                        {
+                          "layout": {
+                            "leaf": {
+                              "key": "0x2738b4a3",
+                              "ty": 0
+                            }
+                          },
+                          "name": "resolve_date"
+                        },
+                        {
+                          "layout": {
+                            "enum": {
+                              "dispatchKey": "0x2738b4a3",
+                              "name": "Option",
+                              "variants": {
+                                "0": {
+                                  "fields": [],
+                                  "name": "None"
+                                },
+                                "1": {
+                                  "fields": [
+                                    {
+                                      "layout": {
+                                        "leaf": {
+                                          "key": "0x2738b4a3",
+                                          "ty": 0
+                                        }
+                                      },
+                                      "name": "0"
+                                    }
+                                  ],
+                                  "name": "Some"
+                                }
+                              }
+                            }
+                          },
+                          "name": "winning_outcome"
+                        }
+                      ],
+                      "name": "EventMarket"
+                    }
+                  },
+                  "root_key": "0x2738b4a3"
+                }
+              },
+              "name": "event_markets"
+            },
+            {
+              "layout": {
+                "root": {
+                  "layout": {
+                    "struct": {
+                      "fields": [
+                        {
+                          "layout": {
+                            "leaf": {
+                              "key": "0x8a1e842b",
+                              "ty": 0
+                            }
+                          },
+                          "name": "event_id"
+                        },
+                        {
+                          "layout": {
+                            "leaf": {
+                              "key": "0x8a1e842b",
+                              "ty": 0
+                            }
+                          },
+                          "name": "outcome_id"
+                        },
+                        {
+                          "layout": {
+                            "leaf": {
+                              "key": "0x8a1e842b",
+                              "ty": 4
+                            }
+                          },
+                          "name": "description"
+                        },
+                        {
+                          "layout": {
+                            "leaf": {
+                              "key": "0x8a1e842b",
+                              "ty": 5
+                            }
+                          },
+                          "name": "deposit_per_supply"
+                        },
+                        {
+                          "layout": {
+                            "leaf": {
+                              "key": "0x8a1e842b",
+                              "ty": 0
+                            }
+                          },
+                          "name": "total_supply"
+                        }
+                      ],
+                      "name": "OutCome"
+                    }
+                  },
+                  "root_key": "0x8a1e842b"
+                }
+              },
+              "name": "outcomes"
+            },
+            {
+              "layout": {
+                "root": {
+                  "layout": {
+                    "struct": {
+                      "fields": [
+                        {
+                          "layout": {
+                            "leaf": {
+                              "key": "0x27fd45b7",
+                              "ty": 0
+                            }
+                          },
+                          "name": "event_id"
+                        },
+                        {
+                          "layout": {
+                            "leaf": {
+                              "key": "0x27fd45b7",
+                              "ty": 0
+                            }
+                          },
+                          "name": "outcome_id"
+                        },
+                        {
+                          "layout": {
+                            "leaf": {
+                              "key": "0x27fd45b7",
+                              "ty": 0
+                            }
+                          },
+                          "name": "available_supply"
+                        }
+                      ],
+                      "name": "MarketOutCome"
+                    }
+                  },
+                  "root_key": "0x27fd45b7"
+                }
+              },
+              "name": "market_outcomes"
+            },
+            {
+              "layout": {
+                "root": {
+                  "layout": {
+                    "struct": {
+                      "fields": [
+                        {
+                          "layout": {
+                            "leaf": {
+                              "key": "0x7b51aba4",
+                              "ty": 0
+                            }
+                          },
+                          "name": "investment_fund_id"
+                        },
+                        {
+                          "layout": {
+                            "struct": {
+                              "fields": [
+                                {
+                                  "layout": {
+                                    "enum": {
+                                      "dispatchKey": "0x7b51aba4",
+                                      "name": "Option",
+                                      "variants": {
+                                        "0": {
+                                          "fields": [],
+                                          "name": "None"
+                                        },
+                                        "1": {
+                                          "fields": [
+                                            {
+                                              "layout": {
+                                                "leaf": {
+                                                  "key": "0x7b51aba4",
+                                                  "ty": 4
+                                                }
+                                              },
+                                              "name": "0"
+                                            }
+                                          ],
+                                          "name": "Some"
+                                        }
+                                      }
+                                    }
+                                  },
+                                  "name": "name"
+                                },
+                                {
+                                  "layout": {
+                                    "enum": {
+                                      "dispatchKey": "0x7b51aba4",
+                                      "name": "Option",
+                                      "variants": {
+                                        "0": {
+                                          "fields": [],
+                                          "name": "None"
+                                        },
+                                        "1": {
+                                          "fields": [
+                                            {
+                                              "layout": {
+                                                "leaf": {
+                                                  "key": "0x7b51aba4",
+                                                  "ty": 4
+                                                }
+                                              },
+                                              "name": "0"
+                                            }
+                                          ],
+                                          "name": "Some"
+                                        }
+                                      }
+                                    }
+                                  },
+                                  "name": "image_url"
+                                }
+                              ],
+                              "name": "FundMetadata"
+                            }
+                          },
+                          "name": "metadata"
+                        },
+                        {
+                          "layout": {
+                            "leaf": {
+                              "key": "0x7b51aba4",
+                              "ty": 0
+                            }
+                          },
+                          "name": "total_share"
+                        },
+                        {
+                          "layout": {
+                            "leaf": {
+                              "key": "0x7b51aba4",
+                              "ty": 5
+                            }
+                          },
+                          "name": "total_fund"
+                        },
+                        {
+                          "layout": {
+                            "leaf": {
+                              "key": "0x7b51aba4",
+                              "ty": 1
+                            }
+                          },
+                          "name": "trader"
+                        }
+                      ],
+                      "name": "InvestmentFund"
+                    }
+                  },
+                  "root_key": "0x7b51aba4"
+                }
+              },
+              "name": "investment_funds"
+            },
+            {
+              "layout": {
+                "root": {
+                  "layout": {
+                    "struct": {
+                      "fields": [
+                        {
+                          "layout": {
+                            "leaf": {
+                              "key": "0x23b53150",
+                              "ty": 0
+                            }
+                          },
+                          "name": "investment_fund_id"
+                        },
+                        {
+                          "layout": {
+                            "leaf": {
+                              "key": "0x23b53150",
+                              "ty": 0
+                            }
+                          },
+                          "name": "trade_id"
+                        },
+                        {
+                          "layout": {
+                            "leaf": {
+                              "key": "0x23b53150",
+                              "ty": 1
+                            }
+                          },
+                          "name": "proponent"
+                        },
+                        {
+                          "layout": {
+                            "enum": {
+                              "dispatchKey": "0x23b53150",
+                              "name": "Option",
+                              "variants": {
+                                "0": {
+                                  "fields": [],
+                                  "name": "None"
+                                },
+                                "1": {
+                                  "fields": [
+                                    {
+                                      "layout": {
+                                        "leaf": {
+                                          "key": "0x23b53150",
+                                          "ty": 1
+                                        }
+                                      },
+                                      "name": "0"
+                                    }
+                                  ],
+                                  "name": "Some"
+                                }
+                              }
+                            }
+                          },
+                          "name": "proposed_person"
+                        },
+                        {
+                          "layout": {
+                            "leaf": {
+                              "key": "0x23b53150",
+                              "ty": 0
+                            }
+                          },
+                          "name": "share"
+                        },
+                        {
+                          "layout": {
+                            "leaf": {
+                              "key": "0x23b53150",
+                              "ty": 5
+                            }
+                          },
+                          "name": "price"
+                        },
+                        {
+                          "layout": {
+                            "leaf": {
+                              "key": "0x23b53150",
+                              "ty": 0
+                            }
+                          },
+                          "name": "close_time"
+                        },
+                        {
+                          "layout": {
+                            "leaf": {
+                              "key": "0x23b53150",
+                              "ty": 6
+                            }
+                          },
+                          "name": "is_completed"
+                        }
+                      ],
+                      "name": "FundTrade"
+                    }
+                  },
+                  "root_key": "0x23b53150"
+                }
+              },
+              "name": "fund_trades"
+            },
+            {
+              "layout": {
+                "root": {
+                  "layout": {
+                    "leaf": {
+                      "key": "0x479fdaaa",
+                      "ty": 7
+                    }
+                  },
+                  "root_key": "0x479fdaaa"
+                }
+              },
+              "name": "event_to_outcomes"
+            },
+            {
+              "layout": {
+                "root": {
+                  "layout": {
+                    "leaf": {
+                      "key": "0x922819c1",
+                      "ty": 0
+                    }
+                  },
+                  "root_key": "0x922819c1"
+                }
+              },
+              "name": "outcome_fund_to_supplies"
+            },
+            {
+              "layout": {
+                "root": {
+                  "layout": {
+                    "leaf": {
+                      "key": "0x179e5e74",
+                      "ty": 7
+                    }
+                  },
+                  "root_key": "0x179e5e74"
+                }
+              },
+              "name": "outcome_to_funds"
+            },
+            {
+              "layout": {
+                "root": {
+                  "layout": {
+                    "leaf": {
+                      "key": "0x0b5fa25f",
+                      "ty": 7
+                    }
+                  },
+                  "root_key": "0x0b5fa25f"
+                }
+              },
+              "name": "fund_to_outcomes"
+            },
+            {
+              "layout": {
+                "root": {
+                  "layout": {
+                    "leaf": {
+                      "key": "0x0f8ccda5",
+                      "ty": 0
+                    }
+                  },
+                  "root_key": "0x0f8ccda5"
+                }
+              },
+              "name": "fund_owner_to_shares"
+            },
+            {
+              "layout": {
+                "root": {
+                  "layout": {
+                    "leaf": {
+                      "key": "0x1ca196fd",
+                      "ty": 7
+                    }
+                  },
+                  "root_key": "0x1ca196fd"
+                }
+              },
+              "name": "fund_to_trades"
+            },
+            {
+              "layout": {
+                "root": {
+                  "layout": {
+                    "leaf": {
+                      "key": "0x889436a3",
+                      "ty": 7
+                    }
+                  },
+                  "root_key": "0x889436a3"
+                }
+              },
+              "name": "proponent_to_trades"
+            },
+            {
+              "layout": {
+                "leaf": {
+                  "key": "0x00000000",
+                  "ty": 0
+                }
+              },
+              "name": "next_fund_id"
+            },
+            {
+              "layout": {
+                "leaf": {
+                  "key": "0x00000000",
+                  "ty": 0
+                }
+              },
+              "name": "next_event_id"
+            },
+            {
+              "layout": {
+                "leaf": {
+                  "key": "0x00000000",
+                  "ty": 0
+                }
+              },
+              "name": "next_outcome_id"
+            },
+            {
+              "layout": {
+                "leaf": {
+                  "key": "0x00000000",
+                  "ty": 0
+                }
+              },
+              "name": "next_trade_id"
+            }
+          ],
+          "name": "PredictionMarket"
+        }
+      },
+      "root_key": "0x00000000"
+    }
+  },
+  "types": [
+    {
+      "id": 0,
+      "type": {
+        "def": {
+          "primitive": "u64"
+        }
+      }
+    },
+    {
+      "id": 1,
+      "type": {
+        "def": {
+          "composite": {
+            "fields": [
+              {
+                "type": 2,
+                "typeName": "[u8; 32]"
+              }
+            ]
+          }
+        },
+        "path": ["ink_primitives", "types", "AccountId"]
+      }
+    },
+    {
+      "id": 2,
+      "type": {
+        "def": {
+          "array": {
+            "len": 32,
+            "type": 3
+          }
+        }
+      }
+    },
+    {
+      "id": 3,
+      "type": {
+        "def": {
+          "primitive": "u8"
+        }
+      }
+    },
+    {
+      "id": 4,
+      "type": {
+        "def": {
+          "primitive": "str"
+        }
+      }
+    },
+    {
+      "id": 5,
+      "type": {
+        "def": {
+          "primitive": "u128"
+        }
+      }
+    },
+    {
+      "id": 6,
+      "type": {
+        "def": {
+          "primitive": "bool"
+        }
+      }
+    },
+    {
+      "id": 7,
+      "type": {
+        "def": {
+          "sequence": {
+            "type": 0
+          }
+        }
+      }
+    },
+    {
+      "id": 8,
+      "type": {
+        "def": {
+          "variant": {
+            "variants": [
+              {
+                "fields": [
+                  {
+                    "type": 9
+                  }
+                ],
+                "index": 0,
+                "name": "Ok"
+              },
+              {
+                "fields": [
+                  {
+                    "type": 10
+                  }
+                ],
+                "index": 1,
+                "name": "Err"
+              }
+            ]
+          }
+        },
+        "params": [
+          {
+            "name": "T",
+            "type": 9
+          },
+          {
+            "name": "E",
+            "type": 10
+          }
+        ],
+        "path": ["Result"]
+      }
+    },
+    {
+      "id": 9,
+      "type": {
+        "def": {
+          "tuple": []
+        }
+      }
+    },
+    {
+      "id": 10,
+      "type": {
+        "def": {
+          "variant": {
+            "variants": [
+              {
+                "index": 1,
+                "name": "CouldNotReadInput"
+              }
+            ]
+          }
+        },
+        "path": ["ink_primitives", "LangError"]
+      }
+    },
+    {
+      "id": 11,
+      "type": {
+        "def": {
+          "sequence": {
+            "type": 12
+          }
+        }
+      }
+    },
+    {
+      "id": 12,
+      "type": {
+        "def": {
+          "composite": {
+            "fields": [
+              {
+                "name": "description",
+                "type": 4,
+                "typeName": "String"
+              },
+              {
+                "name": "deposit_per_supply",
+                "type": 5,
+                "typeName": "Balance"
+              },
+              {
+                "name": "total_supply",
+                "type": 0,
+                "typeName": "Supply"
+              }
+            ]
+          }
+        },
+        "path": ["prediction_market", "types", "OutComePayload"]
+      }
+    },
+    {
+      "id": 13,
+      "type": {
+        "def": {
+          "composite": {
+            "fields": [
+              {
+                "name": "name",
+                "type": 14,
+                "typeName": "Option<String>"
+              },
+              {
+                "name": "image_url",
+                "type": 14,
+                "typeName": "Option<String>"
+              },
+              {
+                "name": "description",
+                "type": 14,
+                "typeName": "Option<String>"
+              }
+            ]
+          }
+        },
+        "path": ["prediction_market", "types", "EventMetadata"]
+      }
+    },
+    {
+      "id": 14,
+      "type": {
+        "def": {
+          "variant": {
+            "variants": [
+              {
+                "index": 0,
+                "name": "None"
+              },
+              {
+                "fields": [
+                  {
+                    "type": 4
+                  }
+                ],
+                "index": 1,
+                "name": "Some"
+              }
+            ]
+          }
+        },
+        "params": [
+          {
+            "name": "T",
+            "type": 4
+          }
+        ],
+        "path": ["Option"]
+      }
+    },
+    {
+      "id": 15,
+      "type": {
+        "def": {
+          "variant": {
+            "variants": [
+              {
+                "fields": [
+                  {
+                    "type": 16
+                  }
+                ],
+                "index": 0,
+                "name": "Ok"
+              },
+              {
+                "fields": [
+                  {
+                    "type": 10
+                  }
+                ],
+                "index": 1,
+                "name": "Err"
+              }
+            ]
+          }
+        },
+        "params": [
+          {
+            "name": "T",
+            "type": 16
+          },
+          {
+            "name": "E",
+            "type": 10
+          }
+        ],
+        "path": ["Result"]
+      }
+    },
+    {
+      "id": 16,
+      "type": {
+        "def": {
+          "variant": {
+            "variants": [
+              {
+                "fields": [
+                  {
+                    "type": 0
+                  }
+                ],
+                "index": 0,
+                "name": "Ok"
+              },
+              {
+                "fields": [
+                  {
+                    "type": 17
+                  }
+                ],
+                "index": 1,
+                "name": "Err"
+              }
+            ]
+          }
+        },
+        "params": [
+          {
+            "name": "T",
+            "type": 0
+          },
+          {
+            "name": "E",
+            "type": 17
+          }
+        ],
+        "path": ["Result"]
+      }
+    },
+    {
+      "id": 17,
+      "type": {
+        "def": {
+          "variant": {
+            "variants": [
+              {
+                "index": 0,
+                "name": "DepositTooLow"
+              },
+              {
+                "index": 1,
+                "name": "EventNotFound"
+              },
+              {
+                "index": 2,
+                "name": "NotOwner"
+              },
+              {
+                "index": 3,
+                "name": "ResolveDateNotMatch"
+              },
+              {
+                "index": 4,
+                "name": "WrongEventOutCome"
+              },
+              {
+                "index": 5,
+                "name": "NotDivisibleBy100"
+              },
+              {
+                "index": 6,
+                "name": "NotEnoughShare"
+              },
+              {
+                "index": 7,
+                "name": "OutOfSupply"
+              },
+              {
+                "index": 8,
+                "name": "AtLeastTwoOutcome"
+              },
+              {
+                "index": 9,
+                "name": "FundNotFound"
+              },
+              {
+                "index": 10,
+                "name": "AtLeast100Share"
+              },
+              {
+                "index": 11,
+                "name": "TimeExpired"
+              },
+              {
+                "index": 12,
+                "name": "TradeNotAvailable"
+              },
+              {
+                "index": 13,
+                "name": "TradeNotFound"
+              },
+              {
+                "index": 14,
+                "name": "SomethingWrong"
+              },
+              {
+                "index": 15,
+                "name": "NoBodyBetted"
+              },
+              {
+                "index": 16,
+                "name": "MoreThanOneSupply"
+              },
+              {
+                "index": 17,
+                "name": "NotEnoughBalance"
+              }
+            ]
+          }
+        },
+        "path": ["prediction_market", "Error"]
+      }
+    },
+    {
+      "id": 18,
+      "type": {
+        "def": {
+          "variant": {
+            "variants": [
+              {
+                "fields": [
+                  {
+                    "type": 19
+                  }
+                ],
+                "index": 0,
+                "name": "Ok"
+              },
+              {
+                "fields": [
+                  {
+                    "type": 10
+                  }
+                ],
+                "index": 1,
+                "name": "Err"
+              }
+            ]
+          }
+        },
+        "params": [
+          {
+            "name": "T",
+            "type": 19
+          },
+          {
+            "name": "E",
+            "type": 10
+          }
+        ],
+        "path": ["Result"]
+      }
+    },
+    {
+      "id": 19,
+      "type": {
+        "def": {
+          "variant": {
+            "variants": [
+              {
+                "fields": [
+                  {
+                    "type": 9
+                  }
+                ],
+                "index": 0,
+                "name": "Ok"
+              },
+              {
+                "fields": [
+                  {
+                    "type": 17
+                  }
+                ],
+                "index": 1,
+                "name": "Err"
+              }
+            ]
+          }
+        },
+        "params": [
+          {
+            "name": "T",
+            "type": 9
+          },
+          {
+            "name": "E",
+            "type": 17
+          }
+        ],
+        "path": ["Result"]
+      }
+    },
+    {
+      "id": 20,
+      "type": {
+        "def": {
+          "variant": {
+            "variants": [
+              {
+                "fields": [
+                  {
+                    "type": 21
+                  }
+                ],
+                "index": 0,
+                "name": "Ok"
+              },
+              {
+                "fields": [
+                  {
+                    "type": 10
+                  }
+                ],
+                "index": 1,
+                "name": "Err"
+              }
+            ]
+          }
+        },
+        "params": [
+          {
+            "name": "T",
+            "type": 21
+          },
+          {
+            "name": "E",
+            "type": 10
+          }
+        ],
+        "path": ["Result"]
+      }
+    },
+    {
+      "id": 21,
+      "type": {
+        "def": {
+          "variant": {
+            "variants": [
+              {
+                "fields": [
+                  {
+                    "type": 22
+                  }
+                ],
+                "index": 0,
+                "name": "Ok"
+              },
+              {
+                "fields": [
+                  {
+                    "type": 17
+                  }
+                ],
+                "index": 1,
+                "name": "Err"
+              }
+            ]
+          }
+        },
+        "params": [
+          {
+            "name": "T",
+            "type": 22
+          },
+          {
+            "name": "E",
+            "type": 17
+          }
+        ],
+        "path": ["Result"]
+      }
+    },
+    {
+      "id": 22,
+      "type": {
+        "def": {
+          "sequence": {
+            "type": 23
+          }
+        }
+      }
+    },
+    {
+      "id": 23,
+      "type": {
+        "def": {
+          "tuple": [24, 25, 0]
+        }
+      }
+    },
+    {
+      "id": 24,
+      "type": {
+        "def": {
+          "composite": {
+            "fields": [
+              {
+                "name": "event_id",
+                "type": 0,
+                "typeName": "EventId"
+              },
+              {
+                "name": "owner",
+                "type": 1,
+                "typeName": "AccountId"
+              },
+              {
+                "name": "question",
+                "type": 4,
+                "typeName": "String"
+              },
+              {
+                "name": "metadata",
+                "type": 13,
+                "typeName": "EventMetadata"
+              }
+            ]
+          }
+        },
+        "path": ["prediction_market", "types", "Event"]
+      }
+    },
+    {
+      "id": 25,
+      "type": {
+        "def": {
+          "composite": {
+            "fields": [
+              {
+                "name": "event_id",
+                "type": 0,
+                "typeName": "EventId"
+              },
+              {
+                "name": "pool",
+                "type": 5,
+                "typeName": "Balance"
+              },
+              {
+                "name": "is_resolved",
+                "type": 6,
+                "typeName": "bool"
+              },
+              {
+                "name": "resolve_date",
+                "type": 0,
+                "typeName": "Timestamp"
+              },
+              {
+                "name": "winning_outcome",
+                "type": 26,
+                "typeName": "Option<OutComeId>"
+              }
+            ]
+          }
+        },
+        "path": ["prediction_market", "types", "EventMarket"]
+      }
+    },
+    {
+      "id": 26,
+      "type": {
+        "def": {
+          "variant": {
+            "variants": [
+              {
+                "index": 0,
+                "name": "None"
+              },
+              {
+                "fields": [
+                  {
+                    "type": 0
+                  }
+                ],
+                "index": 1,
+                "name": "Some"
+              }
+            ]
+          }
+        },
+        "params": [
+          {
+            "name": "T",
+            "type": 0
+          }
+        ],
+        "path": ["Option"]
+      }
+    },
+    {
+      "id": 27,
+      "type": {
+        "def": {
+          "variant": {
+            "variants": [
+              {
+                "fields": [
+                  {
+                    "type": 28
+                  }
+                ],
+                "index": 0,
+                "name": "Ok"
+              },
+              {
+                "fields": [
+                  {
+                    "type": 10
+                  }
+                ],
+                "index": 1,
+                "name": "Err"
+              }
+            ]
+          }
+        },
+        "params": [
+          {
+            "name": "T",
+            "type": 28
+          },
+          {
+            "name": "E",
+            "type": 10
+          }
+        ],
+        "path": ["Result"]
+      }
+    },
+    {
+      "id": 28,
+      "type": {
+        "def": {
+          "variant": {
+            "variants": [
+              {
+                "fields": [
+                  {
+                    "type": 29
+                  }
+                ],
+                "index": 0,
+                "name": "Ok"
+              },
+              {
+                "fields": [
+                  {
+                    "type": 17
+                  }
+                ],
+                "index": 1,
+                "name": "Err"
+              }
+            ]
+          }
+        },
+        "params": [
+          {
+            "name": "T",
+            "type": 29
+          },
+          {
+            "name": "E",
+            "type": 17
+          }
+        ],
+        "path": ["Result"]
+      }
+    },
+    {
+      "id": 29,
+      "type": {
+        "def": {
+          "tuple": [24, 25, 0, 30]
+        }
+      }
+    },
+    {
+      "id": 30,
+      "type": {
+        "def": {
+          "sequence": {
+            "type": 31
+          }
+        }
+      }
+    },
+    {
+      "id": 31,
+      "type": {
+        "def": {
+          "tuple": [32, 33, 34]
+        }
+      }
+    },
+    {
+      "id": 32,
+      "type": {
+        "def": {
+          "composite": {
+            "fields": [
+              {
+                "name": "event_id",
+                "type": 0,
+                "typeName": "EventId"
+              },
+              {
+                "name": "outcome_id",
+                "type": 0,
+                "typeName": "OutComeId"
+              },
+              {
+                "name": "description",
+                "type": 4,
+                "typeName": "String"
+              },
+              {
+                "name": "deposit_per_supply",
+                "type": 5,
+                "typeName": "Balance"
+              },
+              {
+                "name": "total_supply",
+                "type": 0,
+                "typeName": "Supply"
+              }
+            ]
+          }
+        },
+        "path": ["prediction_market", "types", "OutCome"]
+      }
+    },
+    {
+      "id": 33,
+      "type": {
+        "def": {
+          "composite": {
+            "fields": [
+              {
+                "name": "event_id",
+                "type": 0,
+                "typeName": "EventId"
+              },
+              {
+                "name": "outcome_id",
+                "type": 0,
+                "typeName": "OutComeId"
+              },
+              {
+                "name": "available_supply",
+                "type": 0,
+                "typeName": "Supply"
+              }
+            ]
+          }
+        },
+        "path": ["prediction_market", "types", "MarketOutCome"]
+      }
+    },
+    {
+      "id": 34,
+      "type": {
+        "def": {
+          "sequence": {
+            "type": 35
+          }
+        }
+      }
+    },
+    {
+      "id": 35,
+      "type": {
+        "def": {
+          "tuple": [36, 0]
+        }
+      }
+    },
+    {
+      "id": 36,
+      "type": {
+        "def": {
+          "composite": {
+            "fields": [
+              {
+                "name": "investment_fund_id",
+                "type": 0,
+                "typeName": "InvestmentFundId"
+              },
+              {
+                "name": "metadata",
+                "type": 37,
+                "typeName": "FundMetadata"
+              },
+              {
+                "name": "total_share",
+                "type": 0,
+                "typeName": "Share"
+              },
+              {
+                "name": "total_fund",
+                "type": 5,
+                "typeName": "Balance"
+              },
+              {
+                "name": "trader",
+                "type": 1,
+                "typeName": "AccountId"
+              }
+            ]
+          }
+        },
+        "path": ["prediction_market", "types", "InvestmentFund"]
+      }
+    },
+    {
+      "id": 37,
+      "type": {
+        "def": {
+          "composite": {
+            "fields": [
+              {
+                "name": "name",
+                "type": 14,
+                "typeName": "Option<String>"
+              },
+              {
+                "name": "image_url",
+                "type": 14,
+                "typeName": "Option<String>"
+              }
+            ]
+          }
+        },
+        "path": ["prediction_market", "types", "FundMetadata"]
+      }
+    },
+    {
+      "id": 38,
+      "type": {
+        "def": {
+          "variant": {
+            "variants": [
+              {
+                "fields": [
+                  {
+                    "type": 39
+                  }
+                ],
+                "index": 0,
+                "name": "Ok"
+              },
+              {
+                "fields": [
+                  {
+                    "type": 10
+                  }
+                ],
+                "index": 1,
+                "name": "Err"
+              }
+            ]
+          }
+        },
+        "params": [
+          {
+            "name": "T",
+            "type": 39
+          },
+          {
+            "name": "E",
+            "type": 10
+          }
+        ],
+        "path": ["Result"]
+      }
+    },
+    {
+      "id": 39,
+      "type": {
+        "def": {
+          "variant": {
+            "variants": [
+              {
+                "fields": [
+                  {
+                    "type": 40
+                  }
+                ],
+                "index": 0,
+                "name": "Ok"
+              },
+              {
+                "fields": [
+                  {
+                    "type": 17
+                  }
+                ],
+                "index": 1,
+                "name": "Err"
+              }
+            ]
+          }
+        },
+        "params": [
+          {
+            "name": "T",
+            "type": 40
+          },
+          {
+            "name": "E",
+            "type": 17
+          }
+        ],
+        "path": ["Result"]
+      }
+    },
+    {
+      "id": 40,
+      "type": {
+        "def": {
+          "tuple": [1, 0]
+        }
+      }
+    },
+    {
+      "id": 41,
+      "type": {
+        "def": {
+          "variant": {
+            "variants": [
+              {
+                "index": 0,
+                "name": "None"
+              },
+              {
+                "fields": [
+                  {
+                    "type": 1
+                  }
+                ],
+                "index": 1,
+                "name": "Some"
+              }
+            ]
+          }
+        },
+        "params": [
+          {
+            "name": "T",
+            "type": 1
+          }
+        ],
+        "path": ["Option"]
+      }
+    },
+    {
+      "id": 42,
+      "type": {
+        "def": {
+          "variant": {
+            "variants": [
+              {
+                "fields": [
+                  {
+                    "type": 43
+                  }
+                ],
+                "index": 0,
+                "name": "Ok"
+              },
+              {
+                "fields": [
+                  {
+                    "type": 10
+                  }
+                ],
+                "index": 1,
+                "name": "Err"
+              }
+            ]
+          }
+        },
+        "params": [
+          {
+            "name": "T",
+            "type": 43
+          },
+          {
+            "name": "E",
+            "type": 10
+          }
+        ],
+        "path": ["Result"]
+      }
+    },
+    {
+      "id": 43,
+      "type": {
+        "def": {
+          "variant": {
+            "variants": [
+              {
+                "fields": [
+                  {
+                    "type": 44
+                  }
+                ],
+                "index": 0,
+                "name": "Ok"
+              },
+              {
+                "fields": [
+                  {
+                    "type": 17
+                  }
+                ],
+                "index": 1,
+                "name": "Err"
+              }
+            ]
+          }
+        },
+        "params": [
+          {
+            "name": "T",
+            "type": 44
+          },
+          {
+            "name": "E",
+            "type": 17
+          }
+        ],
+        "path": ["Result"]
+      }
+    },
+    {
+      "id": 44,
+      "type": {
+        "def": {
+          "sequence": {
+            "type": 45
+          }
+        }
+      }
+    },
+    {
+      "id": 45,
+      "type": {
+        "def": {
+          "tuple": [36, 46, 26]
+        }
+      }
+    },
+    {
+      "id": 46,
+      "type": {
+        "def": {
+          "sequence": {
+            "type": 47
+          }
+        }
+      }
+    },
+    {
+      "id": 47,
+      "type": {
+        "def": {
+          "tuple": [32, 0]
+        }
+      }
+    },
+    {
+      "id": 48,
+      "type": {
+        "def": {
+          "variant": {
+            "variants": [
+              {
+                "fields": [
+                  {
+                    "type": 49
+                  }
+                ],
+                "index": 0,
+                "name": "Ok"
+              },
+              {
+                "fields": [
+                  {
+                    "type": 10
+                  }
+                ],
+                "index": 1,
+                "name": "Err"
+              }
+            ]
+          }
+        },
+        "params": [
+          {
+            "name": "T",
+            "type": 49
+          },
+          {
+            "name": "E",
+            "type": 10
+          }
+        ],
+        "path": ["Result"]
+      }
+    },
+    {
+      "id": 49,
+      "type": {
+        "def": {
+          "variant": {
+            "variants": [
+              {
+                "fields": [
+                  {
+                    "type": 50
+                  }
+                ],
+                "index": 0,
+                "name": "Ok"
+              },
+              {
+                "fields": [
+                  {
+                    "type": 17
+                  }
+                ],
+                "index": 1,
+                "name": "Err"
+              }
+            ]
+          }
+        },
+        "params": [
+          {
+            "name": "T",
+            "type": 50
+          },
+          {
+            "name": "E",
+            "type": 17
+          }
+        ],
+        "path": ["Result"]
+      }
+    },
+    {
+      "id": 50,
+      "type": {
+        "def": {
+          "sequence": {
+            "type": 51
+          }
+        }
+      }
+    },
+    {
+      "id": 51,
+      "type": {
+        "def": {
+          "tuple": [36, 52]
+        }
+      }
+    },
+    {
+      "id": 52,
+      "type": {
+        "def": {
+          "composite": {
+            "fields": [
+              {
+                "name": "investment_fund_id",
+                "type": 0,
+                "typeName": "InvestmentFundId"
+              },
+              {
+                "name": "trade_id",
+                "type": 0,
+                "typeName": "TradeId"
+              },
+              {
+                "name": "proponent",
+                "type": 1,
+                "typeName": "AccountId"
+              },
+              {
+                "name": "proposed_person",
+                "type": 41,
+                "typeName": "Option<AccountId>"
+              },
+              {
+                "name": "share",
+                "type": 0,
+                "typeName": "Share"
+              },
+              {
+                "name": "price",
+                "type": 5,
+                "typeName": "Balance"
+              },
+              {
+                "name": "close_time",
+                "type": 0,
+                "typeName": "Timestamp"
+              },
+              {
+                "name": "is_completed",
+                "type": 6,
+                "typeName": "bool"
+              }
+            ]
+          }
+        },
+        "path": ["prediction_market", "types", "FundTrade"]
+      }
+    },
+    {
+      "id": 53,
+      "type": {
+        "def": {
+          "variant": {
+            "variants": [
+              {
+                "fields": [
+                  {
+                    "type": 54
+                  }
+                ],
+                "index": 0,
+                "name": "Ok"
+              },
+              {
+                "fields": [
+                  {
+                    "type": 10
+                  }
+                ],
+                "index": 1,
+                "name": "Err"
+              }
+            ]
+          }
+        },
+        "params": [
+          {
+            "name": "T",
+            "type": 54
+          },
+          {
+            "name": "E",
+            "type": 10
+          }
+        ],
+        "path": ["Result"]
+      }
+    },
+    {
+      "id": 54,
+      "type": {
+        "def": {
+          "variant": {
+            "variants": [
+              {
+                "fields": [
+                  {
+                    "type": 55
+                  }
+                ],
+                "index": 0,
+                "name": "Ok"
+              },
+              {
+                "fields": [
+                  {
+                    "type": 17
+                  }
+                ],
+                "index": 1,
+                "name": "Err"
+              }
+            ]
+          }
+        },
+        "params": [
+          {
+            "name": "T",
+            "type": 55
+          },
+          {
+            "name": "E",
+            "type": 17
+          }
+        ],
+        "path": ["Result"]
+      }
+    },
+    {
+      "id": 55,
+      "type": {
+        "def": {
+          "tuple": [36, 56]
+        }
+      }
+    },
+    {
+      "id": 56,
+      "type": {
+        "def": {
+          "sequence": {
+            "type": 52
+          }
+        }
+      }
+    },
+    {
+      "id": 57,
+      "type": {
+        "def": {
+          "primitive": "u32"
+        }
+      }
+    },
+    {
+      "id": 58,
+      "type": {
+        "def": {
+          "variant": {}
+        },
+        "path": ["ink_env", "types", "NoChainExtension"]
+      }
+    }
+  ],
+  "version": "4"
+}

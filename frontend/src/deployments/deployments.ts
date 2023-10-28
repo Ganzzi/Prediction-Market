@@ -1,6 +1,5 @@
 import { env } from '@/config/environment'
 import { SubstrateDeployment } from '@scio-labs/use-inkathon'
-
 /**
  * Add or change your custom contract ids here
  * DOCS: https://github.com/scio-labs/inkathon#2-custom-contracts
@@ -16,16 +15,8 @@ export const getDeployments = async (): Promise<SubstrateDeployment[]> => {
 
   for (const networkId of networks) {
     for (const contractId of Object.values(ContractIds)) {
-      const abi = await import(
-        `@inkathon/contracts/deployments/prediction_market/prediction_market.json`
-      )
-      const { address } = await import(
-        `@inkathon/contracts/deployments/prediction_market/development.ts`
-      )
-      // const abi = await import(`@inkathon/contracts/deployments/${contractId}/${contractId}.json`)
-      // const { address } = await import(
-      //   `@inkathon/contracts/deployments/${contractId}/${networkId}.ts`
-      // )
+      const abi = await import(`./prediction_market/prediction_market.json`)
+      const { address } = await import(`./prediction_market/development`)
 
       deployments.push({ contractId, networkId, abi, address })
     }
