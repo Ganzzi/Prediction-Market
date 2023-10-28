@@ -10,7 +10,6 @@ import {
   useInkathon,
   useRegisteredContract,
 } from '@scio-labs/use-inkathon'
-import Image from 'next/image'
 import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
@@ -102,10 +101,10 @@ function ShowFundDetail({ onClose, fundData }: Props) {
       >
         <div tw="w-full px-5">
           <div tw="flex flex-row items-center justify-start">
-            {fundData[0].metadata.imageUrl && (
+            {fundData[0].metadata.imageUrl ? (
               <div tw="flex h-20 w-20 items-center justify-center">
-                <Image
-                  src={fundData[0].metadata.imageUrl ?? undefined}
+                <img
+                  src={`https://amethyst-disabled-tyrannosaurus-478.mypinata.cloud/ipfs/${fundData[0].metadata.imageUrl}`}
                   alt=""
                   style={{
                     width: 50,
@@ -114,6 +113,16 @@ function ShowFundDetail({ onClose, fundData }: Props) {
                   }}
                 />
               </div>
+            ) : (
+              <img
+                src={`https://amethyst-disabled-tyrannosaurus-478.mypinata.cloud/ipfs/QmasJCYX7QC39kWzFwyAqpWARhMUbNdK8k9HZAkVoKQTKP`}
+                alt=""
+                style={{
+                  width: 50,
+                  height: 50,
+                  borderRadius: 50,
+                }}
+              />
             )}
             <div>
               <p tw="text-2xl">{fundData[0].metadata.name}</p>

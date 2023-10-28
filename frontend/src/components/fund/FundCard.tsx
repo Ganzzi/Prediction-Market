@@ -1,6 +1,5 @@
 import { FundData } from '@/types'
 import { fromDecimal, shorttenAddress } from '@/utils'
-import Image from 'next/image'
 import Router from 'next/router'
 import React from 'react'
 import 'twin.macro'
@@ -27,18 +26,28 @@ const FundCard: React.FC<Props> = ({ fundData }) => {
         }
       >
         <div tw="flex flex-row items-center justify-start">
-          {fund.metadata.imageUrl && (
+          {fund.metadata.imageUrl ? (
             <div tw="flex h-20 w-20 items-center justify-center">
-              <Image
-                src={fund.metadata.imageUrl ?? undefined}
+              <img
+                src={`https://amethyst-disabled-tyrannosaurus-478.mypinata.cloud/ipfs/${fund.metadata.imageUrl}`}
                 alt=""
+                width={50}
+                height={50}
                 style={{
-                  width: 50,
-                  height: 50,
                   borderRadius: 50,
                 }}
               />
             </div>
+          ) : (
+            <img
+              src={`https://amethyst-disabled-tyrannosaurus-478.mypinata.cloud/ipfs/QmasJCYX7QC39kWzFwyAqpWARhMUbNdK8k9HZAkVoKQTKP`}
+              alt=""
+              style={{
+                width: 50,
+                height: 50,
+                borderRadius: 50,
+              }}
+            />
           )}
           <div>
             <p tw="text-2xl">{fund.metadata.name}</p>

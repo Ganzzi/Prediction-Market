@@ -183,7 +183,7 @@ const HomePage: NextPage = () => {
           )}
         </div>
         <span tw="mt-5 rounded-3xl border-2 border-black px-5 py-3">
-          <p tw="text-5xl">{event?.question}</p>
+          <p tw="text-3xl">{event?.question}</p>
         </span>
       </div>
 

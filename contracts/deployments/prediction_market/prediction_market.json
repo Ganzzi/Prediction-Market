@@ -1,6 +1,6 @@
 {
   "source": {
-    "hash": "0xba7613e4be5660e07e5c11e7df281ee44c9f5d05a9ecfca4e7c0c33f93de6510",
+    "hash": "0xee5124e5de66ac87a8b96ddc45e7db52410d5dd995d1e5ba6560265d31ce3f7f",
     "language": "ink! 4.3.0",
     "compiler": "rustc 1.72.1",
     "build_info": {
@@ -1641,6 +1641,18 @@
               {
                 "index": 14,
                 "name": "SomethingWrong"
+              },
+              {
+                "index": 15,
+                "name": "NoBodyBetted"
+              },
+              {
+                "index": 16,
+                "name": "MoreThanOneSupply"
+              },
+              {
+                "index": 17,
+                "name": "NotEnoughBalance"
               }
             ]
           }

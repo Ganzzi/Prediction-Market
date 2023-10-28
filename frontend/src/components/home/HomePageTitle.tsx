@@ -15,12 +15,15 @@ export const HomePageTitle: FC = () => {
       <div tw="flex w-full flex-col items-center text-center font-mono">
         <div tw="relative w-full">
           <img
-            src="https://media.licdn.com/dms/image/C5612AQG9TC3l74k-Nw/article-cover_image-shrink_720_1280/0/1549922697604?e=2147483647&v=beta&t=upbKWCdnlnFUUTD6IjzMOqQejHzKUhRS90zynTcloPo"
+            src="https://plus.unsplash.com/premium_photo-1661421687248-7bb863c60723?auto=format&fit=crop&q=80&w=2138&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
             alt=""
             tw="w-full"
           />
           <div tw="absolute top-0 left-0 flex h-full w-full flex-col items-center justify-center">
-            <button tw="rounded-2xl bg-green-400 px-5 py-2" onClick={() => setShowGuideline(true)}>
+            <button
+              tw="rounded-2xl bg-green-400 px-5 py-2 hover:bg-green-500"
+              onClick={() => setShowGuideline(true)}
+            >
               Get Started
             </button>
           </div>
