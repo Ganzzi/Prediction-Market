@@ -27,6 +27,7 @@ pub enum Error {
     NoBodyBetted,
     MoreThanOneSupply,
     NotEnoughBalance,
+    TraderNotIdentitied,
 }
 
 pub type Result<T> = core::result::Result<T, Error>;
@@ -324,16 +325,26 @@ mod prediction_market {
                 .fund_owner_to_shares
                 .get((fund_id, recipient))
                 .unwrap_or(0);
+            let mut fund = self.get_fund_by_id(fund_id)?;
 
             if amount > share_of_sender {
                 return Err(Error::NotEnoughShare);
+            }
+            if sender == fund.trader {
+                if ((amount as i64 * 100) / fund.total_share as i64) >= 51 {
+                    fund.trader = recipient;
+                } else if (((share_of_sender - amount) * 100 / fund.total_share) < 51)
+                    && (((share_of_recipient + amount) * 100 / fund.total_share) < 51)
+                {
+                    return Err(Error::TraderNotIdentitied);
+                }
             }
 
             self.fund_owner_to_shares
                 .insert((fund_id, sender), &(share_of_sender - amount));
             self.fund_owner_to_shares
                 .insert((fund_id, recipient), &(share_of_recipient + amount));
-
+            self.investment_funds.insert(fund_id, &fund);
             Ok((recipient, share_of_recipient + amount))
         }
 
@@ -463,6 +474,18 @@ mod prediction_market {
                 .get((trade.investment_fund_id, caller))
                 .unwrap_or_default();
 
+            let mut fund = self.get_fund_by_id(trade.investment_fund_id)?;
+
+            if trade.proponent == fund.trader {
+                if ((trade.share as i64 * 100) / fund.total_share as i64) >= 51 {
+                    fund.trader = caller;
+                } else if (((proponent_share - trade.share) * 100 / fund.total_share) < 51)
+                    && (((caller_share + trade.share) * 100 / fund.total_share) < 51)
+                {
+                    return Err(Error::TraderNotIdentitied);
+                }
+            }
+
             trade.is_completed = true;
 
             self.fund_trades.insert(trade_id, &trade);
@@ -474,7 +497,8 @@ mod prediction_market {
                 (trade.investment_fund_id, caller),
                 &(caller_share + trade.share),
             );
-
+            self.investment_funds
+                .insert(trade.investment_fund_id, &fund);
             Ok(())
         }
 

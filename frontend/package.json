@@ -8,12 +8,12 @@
     }
   },
   "scripts": {
-    "postinstall": "cp -n .env.local.example .env.local; true",
     "dev": "next dev",
-    "node": "pnpm run --filter contracts node",
-    "dev-and-node": "concurrently \"pnpm dev\" \"pnpm node\" --names \"Next,Node\" --kill-others",
     "build": "next build",
     "start": "next start",
+    "postinstall": "cp -n .env.local.example .env.local; true",
+    "node": "pnpm run --filter contracts node",
+    "dev-and-node": "concurrently \"pnpm dev\" \"pnpm node\" --names \"Next,Node\" --kill-others",
     "type-check": "tsc --pretty --noEmit",
     "lint": "prettier . --check && eslint",
     "lint:fix": "prettier . --write && eslint --fix",
@@ -28,7 +28,6 @@
     "@emotion/react": "^11.11.1",
     "@emotion/server": "^11.11.0",
     "@emotion/styled": "^11.11.0",
-    "@inkathon/contracts": "workspace:*",
     "@polkadot/api": "^10.10.1",
     "@polkadot/api-contract": "^10.10.1",
     "@polkadot/extension-dapp": "^0.46.5",
